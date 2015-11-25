@@ -1,14 +1,18 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 
 defaultTasks 'tasks'
 
-group='net.maatvirtue'
-version = '1.0.0'
+group = 'net.maatvirtue'
+version = '1.0.8'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
+	compile 'commons-codec:commons-codec:1.10'
+	compile 'org.bouncycastle:bcprov-jdk16:1.46'
+
 	//Logger
 	compile 'org.slf4j:slf4j-api:1.7.13'
 }
@@ -24,7 +28,26 @@ uploadArchives {
 	}
 }
 
+javadoc {
+	options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+artifacts {
+	archives sourcesJar
+	archives javadocJar
+}
+
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.8'
+	gradleVersion = '2.9'
 }
 
