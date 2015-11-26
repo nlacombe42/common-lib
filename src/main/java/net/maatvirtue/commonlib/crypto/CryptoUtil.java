@@ -6,6 +6,8 @@ import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -23,6 +25,7 @@ import java.security.Signature;
 public class CryptoUtil
 {
 	private static final String RSA_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
+	private static final String AES_TRANSFORMATION = "AES/CBC/PKCS5PADDING";
 	private static final String SHA1_RSA_TRANSFORMATION = "SHA1withRSA";
 	private static final String BOUNCY_CASTLE_PROVIDER = "BC";
 
@@ -43,7 +46,8 @@ public class CryptoUtil
 
 	private void loadBouncyCastleProvider()
 	{
-		if (Security.getProvider(BOUNCY_CASTLE_PROVIDER) == null) {
+		if(Security.getProvider(BOUNCY_CASTLE_PROVIDER)==null)
+		{
 			Security.addProvider(new BouncyCastleProvider());
 		}
 	}
@@ -59,6 +63,63 @@ public class CryptoUtil
 			byte[] sha1hash = md.digest();
 
 			return sha1hash;
+		}
+		catch(Exception exception)
+		{
+			throw new CryptoException(exception);
+		}
+	}
+
+	public byte[] generateSecureRandomBytes(int numberOfBytes)
+	{
+		byte[] randomData = new byte[numberOfBytes];
+
+		SecureRandom secureRandom =new SecureRandom();
+
+		secureRandom.nextBytes(randomData);
+
+		return randomData;
+	}
+
+	public byte[] generateRandomAesKey()
+	{
+		return generateSecureRandomBytes(16);
+	}
+
+	public byte[] generateRandomAesIv()
+	{
+		return generateSecureRandomBytes(16);
+	}
+
+	public byte[] encryptAes(byte[] key, byte[] iv, byte[] message) throws CryptoException
+	{
+		try
+		{
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+			SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+
+			Cipher cipher = Cipher.getInstance(AES_TRANSFORMATION);
+			cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+			return cipher.doFinal(message);
+		}
+		catch(Exception exception)
+		{
+			throw new CryptoException(exception);
+		}
+	}
+
+	public byte[] decryptAes(byte[] key, byte[] iv, byte[] encryptedMessage) throws CryptoException
+	{
+		try
+		{
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+			SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+
+			Cipher cipher = Cipher.getInstance(AES_TRANSFORMATION);
+			cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+			return cipher.doFinal(encryptedMessage);
 		}
 		catch(Exception exception)
 		{
@@ -147,7 +208,7 @@ public class CryptoUtil
 
 	public Key readKeyFromPemFile(File pemFile) throws IOException
 	{
-		try(PEMReader pemReader = new PEMReader(new FileReader(pemFile)))
+		try (PEMReader pemReader = new PEMReader(new FileReader(pemFile)))
 		{
 			return (Key)pemReader.readObject();
 		}
@@ -155,7 +216,7 @@ public class CryptoUtil
 
 	public KeyPair readKeyPairFromPemFile(File pemFile) throws IOException
 	{
-		try(PEMReader pemReader = new PEMReader(new FileReader(pemFile)))
+		try (PEMReader pemReader = new PEMReader(new FileReader(pemFile)))
 		{
 			return (KeyPair)pemReader.readObject();
 		}
@@ -163,7 +224,7 @@ public class CryptoUtil
 
 	public void writeKeyToPemFile(File pemFile, Key key) throws IOException
 	{
-		try(PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile)))
+		try (PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile)))
 		{
 			pemWriter.writeObject(key);
 		}
