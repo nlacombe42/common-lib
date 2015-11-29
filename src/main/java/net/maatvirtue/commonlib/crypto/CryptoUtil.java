@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -21,6 +22,7 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 
 public class CryptoUtil
 {
@@ -74,7 +76,7 @@ public class CryptoUtil
 	{
 		byte[] randomData = new byte[numberOfBytes];
 
-		SecureRandom secureRandom =new SecureRandom();
+		SecureRandom secureRandom = new SecureRandom();
 
 		secureRandom.nextBytes(randomData);
 
@@ -199,6 +201,23 @@ public class CryptoUtil
 			kpg.initialize(2048, random);
 
 			return kpg.genKeyPair();
+		}
+		catch(Exception exception)
+		{
+			throw new CryptoException(exception);
+		}
+	}
+
+	public byte[] serializePublicKey(PublicKey publicKey)
+	{
+		return publicKey.getEncoded();
+	}
+
+	public PublicKey deserializePublicKey(byte[] publicKeyBytes) throws CryptoException
+	{
+		try
+		{
+			return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicKeyBytes));
 		}
 		catch(Exception exception)
 		{
