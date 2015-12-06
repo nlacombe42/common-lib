@@ -1,4 +1,4 @@
-package net.maatvirtue.commonlib.net;
+package net.maatvirtue.commonlib.io;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;

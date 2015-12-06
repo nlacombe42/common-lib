@@ -2,8 +2,8 @@ package net.maatvirtue.commonlib.crypto;
 
 import net.maatvirtue.commonlib.exception.CryptoException;
 import net.maatvirtue.commonlib.exception.HostNotTrustedException;
-import net.maatvirtue.commonlib.net.FrameInputStream;
-import net.maatvirtue.commonlib.net.FrameOutputStream;
+import net.maatvirtue.commonlib.io.FrameInputStream;
+import net.maatvirtue.commonlib.io.FrameOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;

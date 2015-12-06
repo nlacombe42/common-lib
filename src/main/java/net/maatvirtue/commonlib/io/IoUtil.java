@@ -1,10 +1,10 @@
-package net.maatvirtue.commonlib.net;
+package net.maatvirtue.commonlib.io;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-public class NetUtil
+public class IoUtil
 {
 	public static int ubyte(byte b)
 	{

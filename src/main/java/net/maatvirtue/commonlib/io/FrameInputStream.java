@@ -1,4 +1,4 @@
-package net.maatvirtue.commonlib.net;
+package net.maatvirtue.commonlib.io;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -28,21 +28,21 @@ public class FrameInputStream extends FilterInputStream
 	{
 		if(sizeFieldLength==1)
 		{
-			return NetUtil.ubyte(NetUtil.read(this, 1)[0]);
+			return IoUtil.ubyte(IoUtil.read(this, 1)[0]);
 		}
 		else if(sizeFieldLength==2)
 		{
-			return ByteBuffer.wrap(NetUtil.read(this, 2)).getShort();
+			return ByteBuffer.wrap(IoUtil.read(this, 2)).getShort();
 		}
 		else
 		{
-			return ByteBuffer.wrap(NetUtil.read(this, 4)).getInt();
+			return ByteBuffer.wrap(IoUtil.read(this, 4)).getInt();
 		}
 	}
 
 	public byte[] readFrame() throws IOException
 	{
 		int frameSize=readFrameSize();
-		return NetUtil.read(this, frameSize);
+		return IoUtil.read(this, frameSize);
 	}
 }
