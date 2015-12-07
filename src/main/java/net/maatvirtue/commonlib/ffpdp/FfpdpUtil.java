@@ -48,6 +48,26 @@ public class FfpdpUtil
 		return instance;
 	}
 
+	public void writeFfpdpTag(OutputStream os, FfpdpTag ffpdpTag) throws IOException, FfpdpException
+	{
+		FfpdpVersion ffpdpVersion = ffpdpTag.getFfpdpVersion();
+
+		if(ffpdpVersion == FfpdpVersion.V2)
+			writeFfpdpTagV2(os, (FfpdpTagV2)ffpdpTag);
+		else
+			throw new NotImplementedFfpdpException("FFPDP Version "+ffpdpVersion+" not implemented");
+	}
+
+	public byte[] getFfpdpTagBytes(FfpdpTag ffpdpTag) throws IOException, FfpdpException
+	{
+		FfpdpVersion ffpdpVersion = ffpdpTag.getFfpdpVersion();
+
+		if(ffpdpVersion == FfpdpVersion.V2)
+			return getFfpdpTagV2Bytes((FfpdpTagV2)ffpdpTag);
+		else
+			throw new NotImplementedFfpdpException("FFPDP Version "+ffpdpVersion+" not implemented");
+	}
+
 	public FfpdpTag readFfpdpTag(byte[] ffpdpPrefixedData) throws IOException, FfpdpException
 	{
 		try(ByteArrayInputStream bais = new ByteArrayInputStream(ffpdpPrefixedData))
@@ -71,40 +91,40 @@ public class FfpdpUtil
 			throw new NotImplementedFfpdpException("FFPDP Version "+ffpdpVersion+" not implemented");
 	}
 
-	public byte[] getFfpdpTagV2Bytes(int uid, int type, int majorVersion, int minorVersion) throws IOException
+	private byte[] getFfpdpTagV2Bytes(FfpdpTagV2 ffpdpTagV2) throws IOException
 	{
 		try(ByteArrayOutputStream baos = new ByteArrayOutputStream())
 		{
-			writeFfpdpTagV2(baos, uid, type, majorVersion, minorVersion);
+			writeFfpdpTagV2(baos, ffpdpTagV2);
 
 			return baos.toByteArray();
 		}
 	}
 
-	public void writeFfpdpTagV2(OutputStream os, int uid, int type, int majorVersion, int minorVersion) throws IOException
+	private void writeFfpdpTagV2(OutputStream os, FfpdpTagV2 ffpdpTagV2) throws IOException
 	{
-		if(!validateFfpdpTagV2Number(uid, FFPDP_V2_UID_NUM_BYTES, 1))
+		if(!validateFfpdpTagV2Number(ffpdpTagV2.getUid(), FFPDP_V2_UID_NUM_BYTES, 1))
 			throw new IllegalArgumentException("Invalid FFPDPV2 UID");
 
-		if(!validateFfpdpTagV2Number(type, FFPDP_V2_TYPE_NUM_BYTES, 1))
+		if(!validateFfpdpTagV2Number(ffpdpTagV2.getType(), FFPDP_V2_TYPE_NUM_BYTES, 1))
 			throw new IllegalArgumentException("Invalid FFPDPV2 type");
 
-		if(!validateFfpdpTagV2Number(majorVersion, FFPDP_V2_MAJOR_VERSION_NUM_BYTES, 0))
+		if(!validateFfpdpTagV2Number(ffpdpTagV2.getMajorVersion(), FFPDP_V2_MAJOR_VERSION_NUM_BYTES, 0))
 			throw new IllegalArgumentException("Invalid FFPDPV2 major version");
 
-		if(!validateFfpdpTagV2Number(minorVersion, FFPDP_V2_MINOR_VERSION_NUM_BYTES, 0))
+		if(!validateFfpdpTagV2Number(ffpdpTagV2.getMinorVersion(), FFPDP_V2_MINOR_VERSION_NUM_BYTES, 0))
 			throw new IllegalArgumentException("Invalid FFPDPV2 minor version");
 
 		os.write(FFPDP_MAGIC);
 		os.write(getFfpdpEncodedNumber(FfpdpVersion.V2.getVersionNumber(), FFPDP_VERSION_NUM_BYTES));
 		os.write(SLASH);
-		os.write(getFfpdpEncodedNumber(uid, FFPDP_V2_UID_NUM_BYTES));
+		os.write(getFfpdpEncodedNumber(ffpdpTagV2.getUid(), FFPDP_V2_UID_NUM_BYTES));
 		os.write(SLASH);
-		os.write(getFfpdpEncodedNumber(type, FFPDP_V2_TYPE_NUM_BYTES));
+		os.write(getFfpdpEncodedNumber(ffpdpTagV2.getType(), FFPDP_V2_TYPE_NUM_BYTES));
 		os.write(SLASH);
-		os.write(getFfpdpEncodedNumber(majorVersion, FFPDP_V2_MAJOR_VERSION_NUM_BYTES));
+		os.write(getFfpdpEncodedNumber(ffpdpTagV2.getMajorVersion(), FFPDP_V2_MAJOR_VERSION_NUM_BYTES));
 		os.write(SLASH);
-		os.write(getFfpdpEncodedNumber(minorVersion, FFPDP_V2_MINOR_VERSION_NUM_BYTES));
+		os.write(getFfpdpEncodedNumber(ffpdpTagV2.getMinorVersion(), FFPDP_V2_MINOR_VERSION_NUM_BYTES));
 	}
 
 	private byte[] getFfpdpEncodedNumber(int number, int numberOfBytes)
