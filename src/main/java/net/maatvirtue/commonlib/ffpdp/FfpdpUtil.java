@@ -134,12 +134,14 @@ public class FfpdpUtil
 		if(textnumber.length()>numberOfBytes)
 			throw new IllegalArgumentException("number must fit in numberOfBytes");
 
+		String paddedNumber = textnumber;
+
 		for(int i=0; i<numberOfBytes-textnumber.length(); i++)
-			textnumber = "0"+textnumber;
+			paddedNumber = "0"+paddedNumber;
 
 		try
 		{
-			return textnumber.getBytes("UTF-8");
+			return paddedNumber.getBytes("UTF-8");
 		}
 		catch(UnsupportedEncodingException exception)
 		{
@@ -238,7 +240,7 @@ public class FfpdpUtil
 		}
 		catch(IllegalArgumentException exception)
 		{
-			throw new InvalidTagFfpdpException("Invalid FFPDP version number");
+			throw new InvalidTagFfpdpException("Invalid FFPDP version number", exception);
 		}
 	}
 
