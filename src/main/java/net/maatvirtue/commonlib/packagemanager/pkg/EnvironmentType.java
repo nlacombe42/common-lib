@@ -14,4 +14,18 @@ public enum EnvironmentType
 	{
 		this.code = code;
 	}
+
+	public static EnvironmentType getByCode(String code)
+	{
+		for(EnvironmentType environmentType: values())
+			if(environmentType.getCode().equals(code))
+				return environmentType;
+
+		throw new IllegalArgumentException("no EnvironmentType with code: "+code);
+	}
+
+	public String getCode()
+	{
+		return code;
+	}
 }

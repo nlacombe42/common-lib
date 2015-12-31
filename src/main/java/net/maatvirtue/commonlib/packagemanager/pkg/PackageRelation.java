@@ -2,6 +2,8 @@ package net.maatvirtue.commonlib.packagemanager.pkg;
 
 public class PackageRelation
 {
+	private static final String RELATION_TYPE_SEPERATOR = ":";
+
 	private PackageRelationType relationType;
 	private String packageName;
 	private VersionRelationType versionRelationType;
@@ -18,6 +20,80 @@ public class PackageRelation
 		this.packageName = packageName;
 		this.versionRelationType = versionRelationType;
 		this.packageVersion = packageVersion;
+	}
+
+	public PackageRelation(String packageRelationText)
+	{
+		packageRelationText = packageRelationText.trim();
+
+		if(!packageRelationText.contains(RELATION_TYPE_SEPERATOR))
+			throw new IllegalArgumentException("invalid packageRelationText");
+
+		String[] relationTypeParts = packageRelationText.split(RELATION_TYPE_SEPERATOR);
+
+		if(relationTypeParts.length!=2)
+			throw new IllegalArgumentException("invalid packageRelationText");
+
+		try
+		{
+			this.relationType = PackageRelationType.getByCode(relationTypeParts[0]);
+
+			parseAndSetRelation(relationTypeParts[1]);
+		}
+		catch(IllegalArgumentException exception)
+		{
+			throw new IllegalArgumentException("invalid packageRelationText", exception);
+		}
+	}
+
+	private void parseAndSetRelation(String relationText)
+	{
+		relationText = relationText.trim();
+
+		VersionRelationType versionRelationType = findRelationType(relationText);
+
+		if(versionRelationType == null)
+			throw new IllegalArgumentException("invalid packageRelationText");
+
+		this.versionRelationType = versionRelationType;
+
+		String[] relationParts = relationText.split(versionRelationType.getCode());
+
+		if(relationParts.length!=2)
+			throw new IllegalArgumentException("invalid packageRelationText");
+
+		this.packageName = relationParts[0].trim();
+
+		try
+		{
+			this.packageVersion = new Version(relationParts[1].trim(), null);
+		}
+		catch(IllegalArgumentException exception)
+		{
+			throw new IllegalArgumentException("invalid packageRelationText", exception);
+		}
+	}
+
+	private VersionRelationType findRelationType(String relationText)
+	{
+		for(VersionRelationType versionRelationType: VersionRelationType.values())
+			if(relationText.contains(versionRelationType.getCode()))
+				return versionRelationType;
+
+		return null;
+	}
+
+	public String getPackageRelationText()
+	{
+		String packageRelationText = "";
+
+		packageRelationText += relationType.getCode();
+		packageRelationText += RELATION_TYPE_SEPERATOR;
+		packageRelationText += packageName;
+		packageRelationText += versionRelationType.getCode();
+		packageRelationText += packageVersion.getVersionText();
+
+		return packageRelationText;
 	}
 
 	public PackageRelationType getRelationType()

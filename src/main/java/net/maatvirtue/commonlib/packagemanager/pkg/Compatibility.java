@@ -13,6 +13,15 @@ public enum Compatibility
 		this.code = code;
 	}
 
+	public static Compatibility getByCode(String code)
+	{
+		for(Compatibility compatibility: values())
+			if(compatibility.getCode().equals(code))
+				return compatibility;
+
+		throw new IllegalArgumentException("no Compatibility for code: "+code);
+	}
+
 	public String getCode()
 	{
 		return code;

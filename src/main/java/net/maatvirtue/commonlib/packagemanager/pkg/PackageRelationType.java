@@ -1,6 +1,6 @@
 package net.maatvirtue.commonlib.packagemanager.pkg;
 
-public enum  PackageRelationType
+public enum PackageRelationType
 {
 	DEPENDS("depends"),
 	PROVIDE("provide"),
@@ -12,6 +12,15 @@ public enum  PackageRelationType
 	PackageRelationType(String code)
 	{
 		this.code = code;
+	}
+
+	public static PackageRelationType getByCode(String code)
+	{
+		for(PackageRelationType packageRelationType: values())
+			if(packageRelationType.getCode().equals(code))
+				return packageRelationType;
+
+		throw new IllegalArgumentException("invalid PackageRelationType code: "+code);
 	}
 
 	public String getCode()

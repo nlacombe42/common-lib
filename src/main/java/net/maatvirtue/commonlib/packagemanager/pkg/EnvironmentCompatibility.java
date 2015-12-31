@@ -2,6 +2,8 @@ package net.maatvirtue.commonlib.packagemanager.pkg;
 
 public class EnvironmentCompatibility
 {
+	private static final String ENVIRONMENT_COMPATIBILITY_SEPERATOR = ":";
+
 	private EnvironmentType environmentType;
 	private Compatibility compatibility;
 	private String environment;
@@ -16,6 +18,43 @@ public class EnvironmentCompatibility
 		this.environmentType = environmentType;
 		this.compatibility = compatibility;
 		this.environment = environment;
+	}
+
+	public EnvironmentCompatibility(String environmentCompatibilityText)
+	{
+		environmentCompatibilityText = environmentCompatibilityText.trim();
+
+		if(!environmentCompatibilityText.contains(ENVIRONMENT_COMPATIBILITY_SEPERATOR))
+			throw new IllegalArgumentException("invalid environmentCompatibilityText");
+
+		String[] environmentCompatibilityParts = environmentCompatibilityText.split(ENVIRONMENT_COMPATIBILITY_SEPERATOR);
+
+		if(environmentCompatibilityParts.length!=3)
+			throw new IllegalArgumentException("invalid environmentCompatibilityText");
+
+		try
+		{
+			this.environmentType = EnvironmentType.getByCode(environmentCompatibilityParts[0].trim());
+			this.environment = environmentCompatibilityParts[1].trim();
+			this.compatibility = Compatibility.getByCode(environmentCompatibilityParts[2].trim());
+		}
+		catch(IllegalArgumentException exception)
+		{
+			throw new IllegalArgumentException("invalid environmentCompatibilityText", exception);
+		}
+	}
+
+	public String getEnvironmentCompatibilityText()
+	{
+		String environmentCompatibilityText = "";
+
+		environmentCompatibilityText += environmentType.getCode();
+		environmentCompatibilityText += ENVIRONMENT_COMPATIBILITY_SEPERATOR;
+		environmentCompatibilityText += environment;
+		environmentCompatibilityText += ENVIRONMENT_COMPATIBILITY_SEPERATOR;
+		environmentCompatibilityText += compatibility.getCode();
+
+		return environmentCompatibilityText;
 	}
 
 	public EnvironmentType getEnvironmentType()
