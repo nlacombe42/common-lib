@@ -57,6 +57,12 @@ public class EnvironmentCompatibility
 		return environmentCompatibilityText;
 	}
 
+	@Override
+	public String toString()
+	{
+		return getEnvironmentCompatibilityText();
+	}
+
 	public EnvironmentType getEnvironmentType()
 	{
 		return environmentType;

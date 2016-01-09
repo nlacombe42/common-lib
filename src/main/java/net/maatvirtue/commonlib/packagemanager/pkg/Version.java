@@ -1,5 +1,7 @@
 package net.maatvirtue.commonlib.packagemanager.pkg;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Version
 {
 	private static final String MAIN_VERSION_SEPERATOR = ".";
@@ -142,6 +144,24 @@ public class Version
 		}
 
 		return versionText;
+	}
+
+	@Override
+	public String toString()
+	{
+		String text = "";
+
+		text += getVersionText();
+
+		String displayName = getDisplayName();
+
+		if(StringUtils.isNotEmpty(displayName))
+		{
+			text += " ";
+			text += displayName;
+		}
+
+		return text;
 	}
 
 	public int getMajorVersion()

@@ -1,10 +1,12 @@
 package net.maatvirtue.commonlib.packagemanager.pkg;
 
+import java.security.PublicKey;
+
 public class Package
 {
 	private PackageMetadata metadata;
 	private byte[] installationData;
-	private byte[] signerPublickey;
+	private PublicKey signerPublickey;
 
 	public Package()
 	{
@@ -16,7 +18,7 @@ public class Package
 		this(metadata, installationData, null);
 	}
 
-	public Package(PackageMetadata metadata, byte[] installationData, byte[] signerPublickey)
+	public Package(PackageMetadata metadata, byte[] installationData, PublicKey signerPublickey)
 	{
 		this.metadata =	metadata;
 		this.installationData = installationData;
@@ -48,12 +50,12 @@ public class Package
 		this.installationData = installationData;
 	}
 
-	public byte[] getSignerPublickey()
+	public PublicKey getSignerPublickey()
 	{
 		return signerPublickey;
 	}
 
-	public void setSignerPublickey(byte[] signerPublickey)
+	public void setSignerPublickey(PublicKey signerPublickey)
 	{
 		this.signerPublickey = signerPublickey;
 	}

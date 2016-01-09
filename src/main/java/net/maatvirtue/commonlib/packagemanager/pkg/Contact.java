@@ -55,6 +55,12 @@ public class Contact
 		return contactText;
 	}
 
+	@Override
+	public String toString()
+	{
+		return getContactText();
+	}
+
 	public String getName()
 	{
 		return name;

@@ -1,5 +1,8 @@
 package net.maatvirtue.commonlib.packagemanager.pkg;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class PackageRelation
 {
 	private static final String RELATION_TYPE_SEPERATOR = ":";
@@ -31,7 +34,7 @@ public class PackageRelation
 
 		String[] relationTypeParts = packageRelationText.split(RELATION_TYPE_SEPERATOR);
 
-		if(relationTypeParts.length!=2)
+		if(relationTypeParts.length != 2)
 			throw new IllegalArgumentException("invalid packageRelationText");
 
 		try
@@ -59,7 +62,7 @@ public class PackageRelation
 
 		String[] relationParts = relationText.split(versionRelationType.getCode());
 
-		if(relationParts.length!=2)
+		if(relationParts.length != 2)
 			throw new IllegalArgumentException("invalid packageRelationText");
 
 		this.packageName = relationParts[0].trim();
@@ -76,7 +79,11 @@ public class PackageRelation
 
 	private VersionRelationType findRelationType(String relationText)
 	{
-		for(VersionRelationType versionRelationType: VersionRelationType.values())
+		List<VersionRelationType> orderedVersionRelationTypes =
+				Arrays.asList(VersionRelationType.EARLIER, VersionRelationType.LATER, VersionRelationType.EQUAL,
+						VersionRelationType.STRICTLY_EARLIER, VersionRelationType.STRICTLY_LATER);
+
+		for(VersionRelationType versionRelationType: orderedVersionRelationTypes)
 			if(relationText.contains(versionRelationType.getCode()))
 				return versionRelationType;
 
@@ -94,6 +101,12 @@ public class PackageRelation
 		packageRelationText += packageVersion.getVersionText();
 
 		return packageRelationText;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getPackageRelationText();
 	}
 
 	public PackageRelationType getRelationType()
