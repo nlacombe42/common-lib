@@ -25,10 +25,25 @@ import java.util.HashSet;
 
 public class PackageManagerService
 {
+	private static PackageManagerService instance;
+
 	private PackageSerializer packageSerializer = PackageSerializer.getInstance();
 	private PackageDeserializer packageDeserializer = PackageDeserializer.getInstance();
 	private PackageRegistryService packageRegistryService = PackageRegistryService.getInstance();
 	private CryptoService cryptoService = CryptoService.getInstance();
+
+	private PackageManagerService()
+	{
+		//Do nothing
+	}
+
+	public static PackageManagerService getInstance()
+	{
+		if(instance==null)
+			instance = new PackageManagerService();
+
+		return instance;
+	}
 
 	public void writePackage(OutputStream os, Package pkg, KeyPair signingKeypair) throws IOException, PackageManagerException
 	{
