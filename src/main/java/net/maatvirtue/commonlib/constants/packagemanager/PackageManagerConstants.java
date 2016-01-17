@@ -18,7 +18,7 @@ public class PackageManagerConstants
 
 	public static final String PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME = "pckmgr-root-signing-public.pem";
 
-	public static final Path PACKAGE_MANAGER_FOLDER = GenericUtil.getUserHomeFolder().resolve("pckmgr");
+	public static final Path PACKAGE_MANAGER_FOLDER = GenericUtil.getUserHomeFolder().resolve(".pckmgr");
 	public static final Path LOCK_FILE = PACKAGE_MANAGER_FOLDER.resolve("lock");
 	public static final Path REGISTRY_FILE = PACKAGE_MANAGER_FOLDER.resolve("registry");
 }
