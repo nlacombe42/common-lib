@@ -141,6 +141,9 @@ public class PackageDeserializer
 
 	private Set<EnvironmentCompatibility> splitEnvironmentCompatibilities(String environmentCompatibilitiesText)
 	{
+		if(environmentCompatibilitiesText==null)
+			return null;
+
 		String[] environmentCompatibilitiesTexts = environmentCompatibilitiesText.split(PackageManagerConstants.PACKAGE_RELATION_SEPERATOR);
 		Set<EnvironmentCompatibility> environmentCompatibilities = new HashSet<>(environmentCompatibilitiesTexts.length);
 
@@ -152,6 +155,9 @@ public class PackageDeserializer
 
 	private Set<PackageRelation> splitPackgeRelations(String packageRelationsText)
 	{
+		if(packageRelationsText==null)
+			return null;
+
 		String[] packageRelationsTexts = packageRelationsText.split(PackageManagerConstants.PACKAGE_RELATION_SEPERATOR);
 		Set<PackageRelation> packageRelations = new HashSet<>(packageRelationsTexts.length);
 
