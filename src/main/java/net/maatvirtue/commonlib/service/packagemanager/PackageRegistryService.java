@@ -117,7 +117,10 @@ public class PackageRegistryService
 
 			try
 			{
-				createRegistry();
+				Path registryFile = PackageManagerConstants.REGISTRY_FILE;
+
+				if(!Files.exists(registryFile))
+					createRegistry(registryFile);
 			}
 			finally
 			{
@@ -126,10 +129,8 @@ public class PackageRegistryService
 		}
 	}
 
-	private void createRegistry() throws IOException, FfpdpException
+	private void createRegistry(Path registryFile) throws IOException, FfpdpException
 	{
-		Path registryFile = PackageManagerConstants.REGISTRY_FILE;
-
 		Files.createFile(registryFile);
 
 		saveRegistry(new PackageRegistry(new HashMap<String, PackageMetadata>()));
