@@ -1,6 +1,8 @@
 package net.maatvirtue.commonlib.service.crypto;
 
 import net.maatvirtue.commonlib.exception.CryptoException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
@@ -17,7 +19,6 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -52,24 +53,6 @@ public class CryptoService
 		if(Security.getProvider(BOUNCY_CASTLE_PROVIDER) == null)
 		{
 			Security.addProvider(new BouncyCastleProvider());
-		}
-	}
-
-	public byte[] SHA256(String text) throws CryptoException
-	{
-		try
-		{
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-			md.update(text.getBytes("UTF-8"), 0, text.length());
-
-			byte[] sha1hash = md.digest();
-
-			return sha1hash;
-		}
-		catch(Exception exception)
-		{
-			throw new CryptoException(exception);
 		}
 	}
 
@@ -212,6 +195,16 @@ public class CryptoService
 	public byte[] serializePublicKey(PublicKey publicKey)
 	{
 		return publicKey.getEncoded();
+	}
+
+	public byte[] getPublicKeyFingerPrint(PublicKey publicKey)
+	{
+		return DigestUtils.sha1(publicKey.getEncoded());
+	}
+
+	public String getPublicKeyFingerPrintHexString(PublicKey publicKey)
+	{
+		return Hex.encodeHexString(getPublicKeyFingerPrint(publicKey));
 	}
 
 	public PublicKey deserializePublicKey(byte[] publicKeyBytes) throws CryptoException

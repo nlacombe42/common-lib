@@ -39,7 +39,7 @@ public class PackageManagerService
 
 	public static PackageManagerService getInstance()
 	{
-		if(instance==null)
+		if(instance == null)
 			instance = new PackageManagerService();
 
 		return instance;
@@ -111,6 +111,18 @@ public class PackageManagerService
 			}
 		}
 		catch(IOException | InterruptedException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	public boolean isPackageManagerRootSigningKey(PublicKey publicKey) throws PackageManagerException
+	{
+		try
+		{
+			return getRootSigningPublicKey().equals(publicKey);
+		}
+		catch(IOException exception)
 		{
 			throw new PackageManagerException(exception);
 		}
