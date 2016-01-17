@@ -1,14 +1,30 @@
 package net.maatvirtue.commonlib.service.packagemanager;
 
+import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.InstallationDataType;
+import net.maatvirtue.commonlib.exception.NotImplementedPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
-import net.maatvirtue.commonlib.domain.packagemanager.Package;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
+import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
+import net.maatvirtue.commonlib.service.crypto.CryptoService;
+import net.maatvirtue.commonlib.util.GenericUtil;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.KeyPair;
+import java.security.PublicKey;
+import java.util.Collections;
+import java.util.HashSet;
 
 @Service
 public class PackageManagerService
@@ -19,6 +35,12 @@ public class PackageManagerService
 	@Inject
 	private PackageDeserializer packageDeserializer;
 
+	@Inject
+	private PackageRegistryService packageRegistryService;
+
+	@Inject
+	private CryptoService cryptoService;
+
 	public void writePackage(OutputStream os, Package pkg, KeyPair signingKeypair) throws IOException, PackageManagerException
 	{
 		packageSerializer.writePackage(os, pkg, signingKeypair);
@@ -27,5 +49,146 @@ public class PackageManagerService
 	public Package readPackage(InputStream is) throws IOException, PackageManagerException
 	{
 		return packageDeserializer.readPackage(is);
+	}
+
+	public void install(Package pck) throws PackageManagerException
+	{
+		try
+		{
+			validatePackageSignature(pck.getSignerPublickey());
+		}
+		catch(IOException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+
+		Path lockFile = getLockFile();
+
+		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
+		{
+			FileLock lock = fos.getChannel().tryLock();
+
+			if(lock == null)
+				throw new PackageManagerRuntimeException("Could not acquire lock");
+
+			try
+			{
+				installWithoutLock(pck);
+			}
+			finally
+			{
+				lock.release();
+			}
+		}
+		catch(IOException | InterruptedException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	public void uninstall(String packageName) throws PackageManagerException
+	{
+		Path lockFile = getLockFile();
+
+		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
+		{
+			FileLock lock = fos.getChannel().tryLock();
+
+			if(lock == null)
+				throw new PackageManagerRuntimeException("Could not acquire lock");
+
+			try
+			{
+				uninstallWithoutLock(packageName);
+			}
+			finally
+			{
+				lock.release();
+			}
+		}
+		catch(IOException | InterruptedException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	private void installWithoutLock(Package pck) throws PackageManagerException, IOException, InterruptedException
+	{
+		String packageName = pck.getMetadata().getName();
+
+		if(packageRegistryService.isPackageInstalled(packageName))
+			uninstallWithoutLock(packageName);
+
+		if(pck.getMetadata().getInstallationDataType() == InstallationDataType.JAR)
+			installJarPackage(pck);
+		else
+			throw new NotImplementedPackageManagerException("Unknown installation type: " + pck.getMetadata().getInstallationDataType());
+	}
+
+	private void installJarPackage(Package pck) throws IOException, PackageManagerException, InterruptedException
+	{
+		String packageName = pck.getMetadata().getName();
+
+		Path applicationFolder = getPackageManagerFolder().resolve(packageName);
+		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
+
+		packageRegistryService.addPackage(pck.getMetadata());
+
+		Files.createDirectories(applicationFolder);
+
+		try(FileOutputStream fos = new FileOutputStream(applicationJar.toFile()))
+		{
+			fos.write(pck.getInstallationData());
+			fos.flush();
+		}
+
+		Files.setPosixFilePermissions(applicationJar, new HashSet<>(Collections.singletonList(PosixFilePermission.OWNER_EXECUTE)));
+
+		Process process = Runtime.getRuntime().exec("java -jar " + applicationJar.toAbsolutePath() + " install",
+				null, applicationFolder.toFile());
+
+		if(process.waitFor() != 0)
+			throw new PackageManagerException("Error calling JAR with install command");
+	}
+
+	private void uninstallWithoutLock(String packageName) throws IOException, PackageManagerException, InterruptedException
+	{
+		Path applicationFolder = getPackageManagerFolder().resolve(packageName);
+		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
+
+		Process process = Runtime.getRuntime().exec("java -jar " + applicationJar.toAbsolutePath() + " uninstall",
+				null, applicationFolder.toFile());
+
+		if(process.waitFor() != 0)
+			throw new PackageManagerException("Error calling JAR with uninstall command");
+
+		FileUtils.deleteDirectory(applicationFolder.toFile());
+
+		packageRegistryService.removePackage(packageName);
+	}
+
+	private void validatePackageSignature(PublicKey packageSignature) throws IOException, PackageManagerException
+	{
+		PublicKey rootSignignPublicKey = getRootSigningPublicKey();
+
+		if(!rootSignignPublicKey.equals(packageSignature))
+			throw new PackageManagerException("Package not signed by root package manager public key.");
+	}
+
+	private PublicKey getRootSigningPublicKey() throws IOException
+	{
+		InputStream is = getClass().getResourceAsStream(PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
+
+		return cryptoService.readPublicKeyFromPem(new InputStreamReader(is));
+	}
+
+	public Path getPackageManagerFolder()
+	{
+		return GenericUtil.getUserHomeFolder().resolve(PackageManagerConstants.PACKAGE_MANAGER_FOLDER_NAME);
+	}
+
+	public Path getLockFile()
+	{
+		return getPackageManagerFolder().resolve(PackageManagerConstants.LOCKFILE_FILE_NAME);
 	}
 }

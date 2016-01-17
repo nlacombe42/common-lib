@@ -1,16 +1,16 @@
 package net.maatvirtue.commonlib.service.packagemanager;
 
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
-import net.maatvirtue.commonlib.domain.packagemanager.Contact;
-import net.maatvirtue.commonlib.domain.packagemanager.EnvironmentCompatibility;
-import net.maatvirtue.commonlib.domain.packagemanager.PackageMetadata;
-import net.maatvirtue.commonlib.domain.packagemanager.PackageRelation;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Contact;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.EnvironmentCompatibility;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageRelation;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
 import net.maatvirtue.commonlib.exception.CryptoException;
 import net.maatvirtue.commonlib.exception.FfpdpException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.service.ffpdp.FfpdpService;
-import net.maatvirtue.commonlib.domain.packagemanager.Package;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.util.io.FrameOutputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
@@ -73,7 +73,7 @@ public class PackageSerializer
 		return signature;
 	}
 
-	private byte[] getMetadataBytes(PackageMetadata packageMetadata) throws IOException
+	public byte[] getMetadataBytes(PackageMetadata packageMetadata) throws IOException
 	{
 		try(ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			FrameOutputStream fos = new FrameOutputStream(baos))

@@ -1,4 +1,4 @@
-package net.maatvirtue.commonlib.domain.packagemanager;
+package net.maatvirtue.commonlib.domain.packagemanager.pck;
 
 public enum EnvironmentType
 {

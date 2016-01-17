@@ -1,7 +1,12 @@
 package net.maatvirtue.commonlib.service.packagemanager;
 
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
-import net.maatvirtue.commonlib.domain.packagemanager.*;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Contact;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.EnvironmentCompatibility;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.InstallationDataType;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageRelation;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Version;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
 import net.maatvirtue.commonlib.exception.CryptoException;
 import net.maatvirtue.commonlib.exception.FfpdpException;
@@ -9,7 +14,7 @@ import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.service.ffpdp.FfpdpTag;
 import net.maatvirtue.commonlib.service.ffpdp.FfpdpTagV2;
 import net.maatvirtue.commonlib.service.ffpdp.FfpdpService;
-import net.maatvirtue.commonlib.domain.packagemanager.Package;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.util.io.FrameInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
@@ -88,7 +93,7 @@ public class PackageDeserializer
 		return cryptoService.verifySha1Rsa(signerPublicKey, metadataAndInstallationData, signature);
 	}
 
-	private PackageMetadata parsePackageMetadata(byte[] metadataBytes) throws IOException
+	public PackageMetadata parsePackageMetadata(byte[] metadataBytes) throws IOException
 	{
 		try(FrameInputStream fis = new FrameInputStream(new ByteArrayInputStream(metadataBytes)))
 		{
