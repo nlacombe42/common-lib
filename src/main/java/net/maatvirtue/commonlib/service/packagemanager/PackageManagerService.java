@@ -193,7 +193,7 @@ public class PackageManagerService
 
 	private PublicKey getRootSigningPublicKey() throws IOException
 	{
-		InputStream is = getClass().getResourceAsStream(PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
+		InputStream is = getClass().getResourceAsStream("/"+PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
 
 		return cryptoService.readPublicKeyFromPem(new InputStreamReader(is));
 	}
