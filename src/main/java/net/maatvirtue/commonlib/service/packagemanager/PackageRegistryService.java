@@ -132,7 +132,7 @@ public class PackageRegistryService
 
 		Files.createFile(registryFile);
 
-		saveRegistry(new PackageRegistry(new HashMap<>()));
+		saveRegistry(new PackageRegistry(new HashMap<String, PackageMetadata>()));
 	}
 
 	private PackageRegistry loadRegistry() throws IOException, FfpdpException, PackageManagerException
