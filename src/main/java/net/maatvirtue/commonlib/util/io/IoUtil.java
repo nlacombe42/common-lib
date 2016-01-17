@@ -2,6 +2,7 @@ package net.maatvirtue.commonlib.util.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public class IoUtil
@@ -22,6 +23,16 @@ public class IoUtil
 	public static byte[] inttob4(int i)
 	{
 		return ByteBuffer.allocate(4).putInt(i).array();
+	}
+
+	public static void writeInteger(OutputStream os, int number) throws IOException
+	{
+		os.write(inttob4(number));
+	}
+
+	public static int readInteger(InputStream is) throws IOException
+	{
+		return b4toint(read(is, 4));
 	}
 
 	/**

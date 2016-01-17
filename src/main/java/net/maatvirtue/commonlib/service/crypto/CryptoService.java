@@ -9,10 +9,11 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -217,25 +218,35 @@ public class CryptoService
 		}
 	}
 
-	public Key readKeyFromPemFile(File pemFile) throws IOException
+	public PublicKey readPublicKeyFromPemFile(Path pemFile) throws IOException
 	{
-		try (PEMReader pemReader = new PEMReader(new FileReader(pemFile)))
+		return readPublicKeyFromPem(new FileReader(pemFile.toFile()));
+	}
+
+	public PublicKey readPublicKeyFromPem(Reader reader) throws IOException
+	{
+		try (PEMReader pemReader = new PEMReader(reader))
 		{
-			return (Key)pemReader.readObject();
+			return (PublicKey)pemReader.readObject();
 		}
 	}
 
-	public KeyPair readKeyPairFromPemFile(File pemFile) throws IOException
+	public KeyPair readKeyPairFromPemFile(Path pemFile) throws IOException
 	{
-		try (PEMReader pemReader = new PEMReader(new FileReader(pemFile)))
+		return readKeyPairFromPem(new FileReader(pemFile.toFile()));
+	}
+
+	public KeyPair readKeyPairFromPem(Reader reader) throws IOException
+	{
+		try (PEMReader pemReader = new PEMReader(reader))
 		{
 			return (KeyPair)pemReader.readObject();
 		}
 	}
 
-	public void writeKeyToPemFile(File pemFile, Key key) throws IOException
+	public void writeKeyToPemFile(Path pemFile, Key key) throws IOException
 	{
-		try (PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile)))
+		try (PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile.toFile())))
 		{
 			pemWriter.writeObject(key);
 		}

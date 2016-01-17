@@ -1,5 +1,7 @@
 package net.maatvirtue.commonlib.util;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Random;
 
 public class GenericUtil
@@ -18,6 +20,11 @@ public class GenericUtil
 				//ignoring interrupt
 			}
 		}
+	}
+
+	public static Path getUserHomeFolder()
+	{
+		return Paths.get(System.getProperty("user.home"));
 	}
 
 	public static void interruptThreadIfRunning(Thread thread)
