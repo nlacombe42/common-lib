@@ -11,9 +11,7 @@ import net.maatvirtue.commonlib.service.ffpdp.FfpdpService;
 import net.maatvirtue.commonlib.service.ffpdp.FfpdpVersion;
 import net.maatvirtue.commonlib.util.io.FrameInputStream;
 import net.maatvirtue.commonlib.util.io.FrameOutputStream;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,7 +21,6 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-@Service
 public class CryptoMessageService implements Serializable
 {
 	private static final int FFPDP_CRYPTO_UID = 1;
@@ -32,11 +29,23 @@ public class CryptoMessageService implements Serializable
 	private static final FfpdpTagV2 currentSignedMessageTag = new FfpdpTagV2(FFPDP_CRYPTO_UID, FFPDP_SIGNED_MESSAGE_TYPE, 1, 0);
 	private static final FfpdpTagV2 currentEncryptedMessageTag = new FfpdpTagV2(FFPDP_CRYPTO_UID, FFPDP_ENCRYPTED_MESSAGE_TYPE, 1, 0);
 
-	@Inject
-	private CryptoService cryptoService;
+	private CryptoService cryptoService = CryptoService.getInstance();
+	private FfpdpService ffpdpService = FfpdpService.getInstance();
 
-	@Inject
-	private FfpdpService ffpdpService;
+	private static CryptoMessageService instance;
+
+	private CryptoMessageService()
+	{
+		//Do nothing
+	}
+
+	public static CryptoMessageService getInstance()
+	{
+		if(instance == null)
+			instance = new CryptoMessageService();
+
+		return instance;
+	}
 
 	public byte[] signAndEncryptMessage(KeyPair signingKeypair, PublicKey encryptionKey, byte[] message) throws IOException, CryptoException
 	{
@@ -45,14 +54,11 @@ public class CryptoMessageService implements Serializable
 
 	public byte[] signMessage(KeyPair signingKeypair, byte[] message) throws IOException, CryptoException
 	{
-		if(signingKeypair==null || message==null)
+		if(signingKeypair == null || message == null)
 			throw new IllegalArgumentException("signingKeypair and message must not be null");
 
-		try
-		(
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			FrameOutputStream fos = new FrameOutputStream(baos);
-		)
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			FrameOutputStream fos = new FrameOutputStream(baos))
 		{
 			byte[] signature = cryptoService.signSha1Rsa(signingKeypair.getPrivate(), message);
 
@@ -71,22 +77,19 @@ public class CryptoMessageService implements Serializable
 
 	public SignedMessage readSignedMessage(byte[] signedMessageBytes) throws IOException, CryptoException
 	{
-		if(signedMessageBytes==null)
+		if(signedMessageBytes == null)
 			throw new IllegalArgumentException("signedMessageBytes must not be null");
 
-		try
-		(
-			ByteArrayInputStream bais = new ByteArrayInputStream(signedMessageBytes);
-			FrameInputStream fis = new FrameInputStream(bais);
-		)
+		try(ByteArrayInputStream bais = new ByteArrayInputStream(signedMessageBytes);
+			FrameInputStream fis = new FrameInputStream(bais))
 		{
 			FfpdpTagV2 ffpdpTagV2 = readFfpdpTagV2(bais);
 
-			if(ffpdpTagV2.getUid()!=FFPDP_CRYPTO_UID || ffpdpTagV2.getType()!=FFPDP_SIGNED_MESSAGE_TYPE)
+			if(ffpdpTagV2.getUid() != FFPDP_CRYPTO_UID || ffpdpTagV2.getType() != FFPDP_SIGNED_MESSAGE_TYPE)
 				throw new CryptoException("signedMessageBytes is not a signed message");
 
-			if(ffpdpTagV2.getMajorVersion()!=currentSignedMessageTag.getMajorVersion())
-				throw new NotImplementedCryptoException("signed message major version "+ffpdpTagV2.getMajorVersion()+" not implemented");
+			if(ffpdpTagV2.getMajorVersion() != currentSignedMessageTag.getMajorVersion())
+				throw new NotImplementedCryptoException("signed message major version " + ffpdpTagV2.getMajorVersion() + " not implemented");
 
 			PublicKey signerPublicKey = cryptoService.deserializePublicKey(fis.readFrame());
 			byte[] signature = fis.readFrame();
@@ -106,11 +109,8 @@ public class CryptoMessageService implements Serializable
 		byte[] aesKey = cryptoService.generateRandomAesKey();
 		byte[] iv = cryptoService.generateRandomAesIv();
 
-		try
-		(
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			FrameOutputStream fos = new FrameOutputStream(baos);
-		)
+		try(ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			FrameOutputStream fos = new FrameOutputStream(baos))
 		{
 			ffpdpService.writeFfpdpTag(baos, currentEncryptedMessageTag);
 			fos.writeFrame(cryptoService.encryptRsa(encryptionKey, aesKey));
@@ -127,19 +127,16 @@ public class CryptoMessageService implements Serializable
 
 	public UnencryptedMessage decryptMessage(PrivateKey decryptionKey, byte[] encryptedMessage) throws IOException, CryptoException
 	{
-		try
-		(
-			ByteArrayInputStream bais = new ByteArrayInputStream(encryptedMessage);
-			FrameInputStream fis = new FrameInputStream(bais);
-		)
+		try(ByteArrayInputStream bais = new ByteArrayInputStream(encryptedMessage);
+			FrameInputStream fis = new FrameInputStream(bais))
 		{
 			FfpdpTagV2 ffpdpTagV2 = readFfpdpTagV2(bais);
 
-			if(ffpdpTagV2.getUid()!=FFPDP_CRYPTO_UID || ffpdpTagV2.getType()!=FFPDP_ENCRYPTED_MESSAGE_TYPE)
+			if(ffpdpTagV2.getUid() != FFPDP_CRYPTO_UID || ffpdpTagV2.getType() != FFPDP_ENCRYPTED_MESSAGE_TYPE)
 				throw new CryptoException("encryptedMessage is not an encrypted message");
 
-			if(ffpdpTagV2.getMajorVersion()!=currentEncryptedMessageTag.getMajorVersion())
-				throw new NotImplementedCryptoException("encrypted message major version "+ffpdpTagV2.getMajorVersion()+" not implemented");
+			if(ffpdpTagV2.getMajorVersion() != currentEncryptedMessageTag.getMajorVersion())
+				throw new NotImplementedCryptoException("encrypted message major version " + ffpdpTagV2.getMajorVersion() + " not implemented");
 
 			byte[] encryptedAesKey = fis.readFrame();
 			byte[] iv = fis.readFrame();
@@ -155,15 +152,16 @@ public class CryptoMessageService implements Serializable
 		}
 	}
 
-	private boolean isSignedMessage(byte[] data) {
+	private boolean isSignedMessage(byte[] data)
+	{
 		try(ByteArrayInputStream bais = new ByteArrayInputStream(data))
 		{
 			FfpdpTagV2 ffpdpTagV2 = readFfpdpTagV2(bais);
 
-			return ffpdpTagV2.getUid()==FFPDP_CRYPTO_UID && ffpdpTagV2.getType()==FFPDP_SIGNED_MESSAGE_TYPE &&
-							ffpdpTagV2.getMajorVersion()==currentSignedMessageTag.getMajorVersion();
+			return ffpdpTagV2.getUid() == FFPDP_CRYPTO_UID && ffpdpTagV2.getType() == FFPDP_SIGNED_MESSAGE_TYPE &&
+					ffpdpTagV2.getMajorVersion() == currentSignedMessageTag.getMajorVersion();
 		}
-		catch(CryptoException|IOException exception)
+		catch(CryptoException | IOException exception)
 		{
 			return false;
 		}
@@ -175,10 +173,10 @@ public class CryptoMessageService implements Serializable
 		{
 			FfpdpTag ffpdpTag = ffpdpService.readFfpdpTag(is);
 
-			if(ffpdpTag.getFfpdpVersion()!= FfpdpVersion.V2)
-				throw new NotImplementedCryptoException("FFPDP version "+ffpdpTag.getFfpdpVersion()+" not implemented");
+			if(ffpdpTag.getFfpdpVersion() != FfpdpVersion.V2)
+				throw new NotImplementedCryptoException("FFPDP version " + ffpdpTag.getFfpdpVersion() + " not implemented");
 
-			return (FfpdpTagV2)ffpdpTag;
+			return (FfpdpTagV2) ffpdpTag;
 		}
 		catch(FfpdpException exception)
 		{

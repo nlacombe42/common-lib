@@ -4,7 +4,6 @@ import net.maatvirtue.commonlib.exception.FfpdpException;
 import net.maatvirtue.commonlib.exception.InvalidTagFfpdpException;
 import net.maatvirtue.commonlib.exception.NotImplementedFfpdpException;
 import net.maatvirtue.commonlib.util.io.IoUtil;
-import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,7 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-@Service
 public class FfpdpService
 {
 	private static final int FFPDP_VERSION_NUM_BYTES = 2;
@@ -27,7 +25,9 @@ public class FfpdpService
 	private byte[] FFPDP_MAGIC;
 	private byte[] SLASH;
 
-	public FfpdpService()
+	private static FfpdpService instance;
+
+	private FfpdpService()
 	{
 		try
 		{
@@ -38,6 +38,14 @@ public class FfpdpService
 		{
 			throw new RuntimeException(exception); //Should not happen
 		}
+	}
+
+	public static FfpdpService getInstance()
+	{
+		if(instance==null)
+			instance = new FfpdpService();
+
+		return instance;
 	}
 
 	public void writeFfpdpTag(OutputStream os, FfpdpTag ffpdpTag) throws IOException, FfpdpException

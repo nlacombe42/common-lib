@@ -7,11 +7,8 @@ import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
-import net.maatvirtue.commonlib.util.GenericUtil;
 import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,20 +23,12 @@ import java.security.PublicKey;
 import java.util.Collections;
 import java.util.HashSet;
 
-@Service
 public class PackageManagerService
 {
-	@Inject
-	private PackageSerializer packageSerializer;
-
-	@Inject
-	private PackageDeserializer packageDeserializer;
-
-	@Inject
-	private PackageRegistryService packageRegistryService;
-
-	@Inject
-	private CryptoService cryptoService;
+	private PackageSerializer packageSerializer = PackageSerializer.getInstance();
+	private PackageDeserializer packageDeserializer = PackageDeserializer.getInstance();
+	private PackageRegistryService packageRegistryService = PackageRegistryService.getInstance();
+	private CryptoService cryptoService = CryptoService.getInstance();
 
 	public void writePackage(OutputStream os, Package pkg, KeyPair signingKeypair) throws IOException, PackageManagerException
 	{
@@ -62,7 +51,7 @@ public class PackageManagerService
 			throw new PackageManagerException(exception);
 		}
 
-		Path lockFile = getLockFile();
+		Path lockFile = PackageManagerConstants.LOCK_FILE;
 
 		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
 		{
@@ -88,7 +77,7 @@ public class PackageManagerService
 
 	public void uninstall(String packageName) throws PackageManagerException
 	{
-		Path lockFile = getLockFile();
+		Path lockFile = PackageManagerConstants.LOCK_FILE;
 
 		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
 		{
@@ -129,7 +118,7 @@ public class PackageManagerService
 	{
 		String packageName = pck.getMetadata().getName();
 
-		Path applicationFolder = getPackageManagerFolder().resolve(packageName);
+		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
 		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
 
 		packageRegistryService.addPackage(pck.getMetadata());
@@ -153,7 +142,7 @@ public class PackageManagerService
 
 	private void uninstallWithoutLock(String packageName) throws IOException, PackageManagerException, InterruptedException
 	{
-		Path applicationFolder = getPackageManagerFolder().resolve(packageName);
+		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
 		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
 
 		Process process = Runtime.getRuntime().exec("java -jar " + applicationJar.toAbsolutePath() + " uninstall",
@@ -180,15 +169,5 @@ public class PackageManagerService
 		InputStream is = getClass().getResourceAsStream(PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
 
 		return cryptoService.readPublicKeyFromPem(new InputStreamReader(is));
-	}
-
-	public Path getPackageManagerFolder()
-	{
-		return GenericUtil.getUserHomeFolder().resolve(PackageManagerConstants.PACKAGE_MANAGER_FOLDER_NAME);
-	}
-
-	public Path getLockFile()
-	{
-		return getPackageManagerFolder().resolve(PackageManagerConstants.LOCKFILE_FILE_NAME);
 	}
 }

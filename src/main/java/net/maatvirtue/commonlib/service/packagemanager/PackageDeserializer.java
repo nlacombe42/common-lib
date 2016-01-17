@@ -17,9 +17,7 @@ import net.maatvirtue.commonlib.service.ffpdp.FfpdpService;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.util.io.FrameInputStream;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,14 +25,25 @@ import java.security.PublicKey;
 import java.util.HashSet;
 import java.util.Set;
 
-@Service
 public class PackageDeserializer
 {
-	@Inject
-	private CryptoService cryptoService;
+	private CryptoService cryptoService = CryptoService.getInstance();
+	private FfpdpService ffpdpService = FfpdpService.getInstance();
 
-	@Inject
-	private FfpdpService ffpdpService;
+	private static PackageDeserializer instance;
+
+	public PackageDeserializer()
+	{
+		//Do nothing
+	}
+
+	public static PackageDeserializer getInstance()
+	{
+		if(instance == null)
+			instance = new PackageDeserializer();
+
+		return instance;
+	}
 
 	public Package readPackage(InputStream is) throws IOException, PackageManagerException
 	{

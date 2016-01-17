@@ -13,23 +13,32 @@ import net.maatvirtue.commonlib.service.ffpdp.FfpdpService;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.util.io.FrameOutputStream;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.KeyPair;
 import java.util.Set;
 
-@Service
 public class PackageSerializer
 {
-	@Inject
-	private CryptoService cryptoService;
+	private static PackageSerializer instance;
 
-	@Inject
-	private FfpdpService ffpdpService;
+	private CryptoService cryptoService = CryptoService.getInstance();
+	private FfpdpService ffpdpService = FfpdpService.getInstance();
+
+	private PackageSerializer()
+	{
+		//Do nothing
+	}
+
+	public static PackageSerializer getInstance()
+	{
+		if(instance==null)
+			instance = new PackageSerializer();
+
+		return instance;
+	}
 
 	public void writePackage(OutputStream os, Package pkg, KeyPair signingKeypair) throws IOException, PackageManagerException
 	{

@@ -12,26 +12,33 @@ import net.maatvirtue.commonlib.service.ffpdp.FfpdpVersion;
 import net.maatvirtue.commonlib.util.io.FrameInputStream;
 import net.maatvirtue.commonlib.util.io.FrameOutputStream;
 import net.maatvirtue.commonlib.util.io.IoUtil;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
 public class PackageRegistrySerializer
 {
-	@Inject
-	private FfpdpService ffpdpService;
+	private static PackageRegistrySerializer instance;
 
-	@Inject
-	private PackageSerializer packageSerializer;
+	private FfpdpService ffpdpService = FfpdpService.getInstance();
+	private PackageSerializer packageSerializer = PackageSerializer.getInstance();
+	private PackageDeserializer packageDeserializer = PackageDeserializer.getInstance();
 
-	@Inject
-	private PackageDeserializer packageDeserializer;
+	private PackageRegistrySerializer()
+	{
+		//Do nothing
+	}
+
+	public static PackageRegistrySerializer getInstance()
+	{
+		if(instance==null)
+			instance = new PackageRegistrySerializer();
+
+		return instance;
+	}
 
 	public void writeRegistry(OutputStream os, PackageRegistry registry) throws IOException, FfpdpException
 	{

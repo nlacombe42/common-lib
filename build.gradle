@@ -4,18 +4,19 @@ apply plugin: 'maven'
 defaultTasks 'tasks'
 
 group = 'net.maatvirtue'
-version = '1.5.0'
+version = '1.6.0'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-	compile 'org.springframework:spring-context:4.1.7.RELEASE'
-	compile 'javax.inject:javax.inject:1'
+	//Cryptography
+	compile 'org.bouncycastle:bcprov-jdk16:1.46'
+
+	//Utils
 	compile 'commons-codec:commons-codec:1.10'
 	compile 'commons-io:commons-io:2.4'
 	compile 'org.apache.commons:commons-lang3:3.4'
-	compile 'org.bouncycastle:bcprov-jdk16:1.46'
 
 	//Logger
 	compile 'org.slf4j:slf4j-api:1.7.13'
@@ -52,6 +53,6 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.9'
+	gradleVersion = '2.10'
 }
 

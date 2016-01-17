@@ -8,9 +8,7 @@ import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,18 +18,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 
-@Service
 public class PackageRegistryService
 {
-	private Logger logger = LoggerFactory.getLogger(PackageRegistryService.class);
+	private static Logger logger = LoggerFactory.getLogger(PackageRegistryService.class);
+	private static PackageRegistryService instance;
 
-	@Inject
-	private PackageManagerService packageManagerService;
+	private PackageRegistrySerializer packageRegistrySerializer = PackageRegistrySerializer.getInstance();
 
-	@Inject
-	private PackageRegistrySerializer packageRegistrySerializer;
-
-	public PackageRegistryService()
+	private PackageRegistryService()
 	{
 		try
 		{
@@ -43,6 +37,14 @@ public class PackageRegistryService
 		}
 	}
 
+	public static PackageRegistryService getInstance()
+	{
+		if(instance == null)
+			instance = new PackageRegistryService();
+
+		return instance;
+	}
+
 	public boolean isPackageInstalled(String packageName) throws PackageManagerException
 	{
 		try
@@ -51,7 +53,7 @@ public class PackageRegistryService
 
 			return registry.isPackageInRegistry(packageName);
 		}
-		catch(IOException|FfpdpException exception)
+		catch(IOException | FfpdpException exception)
 		{
 			throw new PackageManagerException(exception);
 		}
@@ -67,7 +69,7 @@ public class PackageRegistryService
 
 			saveRegistry(registry);
 		}
-		catch(IOException|FfpdpException exception)
+		catch(IOException | FfpdpException exception)
 		{
 			throw new PackageManagerException(exception);
 		}
@@ -83,7 +85,7 @@ public class PackageRegistryService
 
 			saveRegistry(registry);
 		}
-		catch(IOException|FfpdpException exception)
+		catch(IOException | FfpdpException exception)
 		{
 			throw new PackageManagerException(exception);
 		}
@@ -91,8 +93,8 @@ public class PackageRegistryService
 
 	private void createRegistryIfNotPresent() throws IOException, FfpdpException
 	{
-		Path packageManagerFolder = packageManagerService.getPackageManagerFolder();
-		Path lockFile = packageManagerService.getLockFile();
+		Path packageManagerFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER;
+		Path lockFile = PackageManagerConstants.LOCK_FILE;
 
 		if(!Files.exists(packageManagerFolder))
 			Files.createDirectories(packageManagerFolder);
@@ -110,7 +112,7 @@ public class PackageRegistryService
 		{
 			FileLock lock = fos.getChannel().tryLock();
 
-			if(lock==null)
+			if(lock == null)
 				throw new PackageManagerRuntimeException("Could not acquire lock");
 
 			try
@@ -126,7 +128,7 @@ public class PackageRegistryService
 
 	private void createRegistry() throws IOException, FfpdpException
 	{
-		Path registryFile = getRegistryFile();
+		Path registryFile = PackageManagerConstants.REGISTRY_FILE;
 
 		Files.createFile(registryFile);
 
@@ -135,7 +137,7 @@ public class PackageRegistryService
 
 	private PackageRegistry loadRegistry() throws IOException, FfpdpException, PackageManagerException
 	{
-		Path registryFile = getRegistryFile();
+		Path registryFile = PackageManagerConstants.REGISTRY_FILE;
 
 		try(FileInputStream fis = new FileInputStream(registryFile.toFile()))
 		{
@@ -145,16 +147,11 @@ public class PackageRegistryService
 
 	private void saveRegistry(PackageRegistry registry) throws IOException, FfpdpException
 	{
-		Path registryFile = getRegistryFile();
+		Path registryFile = PackageManagerConstants.REGISTRY_FILE;
 
 		try(FileOutputStream fos = new FileOutputStream(registryFile.toFile()))
 		{
 			packageRegistrySerializer.writeRegistry(fos, registry);
 		}
-	}
-
-	private Path getRegistryFile()
-	{
-		return packageManagerService.getPackageManagerFolder().resolve(PackageManagerConstants.REGISTRY_FILE_NAME);
 	}
 }

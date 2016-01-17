@@ -4,7 +4,6 @@ import net.maatvirtue.commonlib.exception.CryptoException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
-import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -26,7 +25,6 @@ import java.security.Security;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 
-@Service
 public class CryptoService
 {
 	private static final String RSA_TRANSFORMATION = "RSA/ECB/PKCS1Padding";
@@ -34,14 +32,24 @@ public class CryptoService
 	private static final String SHA1_RSA_TRANSFORMATION = "SHA1withRSA";
 	private static final String BOUNCY_CASTLE_PROVIDER = "BC";
 
-	public CryptoService()
+	private static CryptoService instance;
+
+	private CryptoService()
 	{
 		loadBouncyCastleProvider();
 	}
 
+	public static CryptoService getInstance()
+	{
+		if(instance == null)
+			instance = new CryptoService();
+
+		return instance;
+	}
+
 	private void loadBouncyCastleProvider()
 	{
-		if(Security.getProvider(BOUNCY_CASTLE_PROVIDER)==null)
+		if(Security.getProvider(BOUNCY_CASTLE_PROVIDER) == null)
 		{
 			Security.addProvider(new BouncyCastleProvider());
 		}
@@ -225,9 +233,9 @@ public class CryptoService
 
 	public PublicKey readPublicKeyFromPem(Reader reader) throws IOException
 	{
-		try (PEMReader pemReader = new PEMReader(reader))
+		try(PEMReader pemReader = new PEMReader(reader))
 		{
-			return (PublicKey)pemReader.readObject();
+			return (PublicKey) pemReader.readObject();
 		}
 	}
 
@@ -238,15 +246,15 @@ public class CryptoService
 
 	public KeyPair readKeyPairFromPem(Reader reader) throws IOException
 	{
-		try (PEMReader pemReader = new PEMReader(reader))
+		try(PEMReader pemReader = new PEMReader(reader))
 		{
-			return (KeyPair)pemReader.readObject();
+			return (KeyPair) pemReader.readObject();
 		}
 	}
 
 	public void writeKeyToPemFile(Path pemFile, Key key) throws IOException
 	{
-		try (PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile.toFile())))
+		try(PEMWriter pemWriter = new PEMWriter(new FileWriter(pemFile.toFile())))
 		{
 			pemWriter.writeObject(key);
 		}

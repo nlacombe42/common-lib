@@ -5,7 +5,6 @@ import net.maatvirtue.commonlib.exception.HostNotTrustedException;
 import net.maatvirtue.commonlib.util.io.FrameInputStream;
 import net.maatvirtue.commonlib.util.io.FrameOutputStream;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,8 +13,7 @@ import java.security.PublicKey;
 
 public class SecureChannel
 {
-	@Inject
-	private CryptoService cryptoService;
+	private CryptoService cryptoService = CryptoService.getInstance();
 
 	private KeyPair localKeypair;
 	private FrameInputStream fis;
