@@ -49,6 +49,11 @@ public class Version
 		this.displayName = displayName;
 	}
 
+	public Version(String versionText)
+	{
+		this(versionText, null);
+	}
+
 	public Version(String versionText, String displayName)
 	{
 		this.displayName = displayName;
