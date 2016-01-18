@@ -63,6 +63,29 @@ public class EnvironmentCompatibility
 		return getEnvironmentCompatibilityText();
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		EnvironmentCompatibility that = (EnvironmentCompatibility) o;
+
+		if(environmentType != that.environmentType) return false;
+		if(compatibility != that.compatibility) return false;
+		return environment != null ? environment.equals(that.environment) : that.environment == null;
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = environmentType != null ? environmentType.hashCode() : 0;
+		result = 31 * result + (compatibility != null ? compatibility.hashCode() : 0);
+		result = 31 * result + (environment != null ? environment.hashCode() : 0);
+		return result;
+	}
+
 	public EnvironmentType getEnvironmentType()
 	{
 		return environmentType;

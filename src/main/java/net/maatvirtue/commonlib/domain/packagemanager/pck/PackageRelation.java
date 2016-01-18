@@ -109,6 +109,31 @@ public class PackageRelation
 		return getPackageRelationText();
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		PackageRelation that = (PackageRelation) o;
+
+		if(relationType != that.relationType) return false;
+		if(packageName != null ? !packageName.equals(that.packageName) : that.packageName != null) return false;
+		if(versionRelationType != that.versionRelationType) return false;
+		return packageVersion != null ? packageVersion.equals(that.packageVersion) : that.packageVersion == null;
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = relationType != null ? relationType.hashCode() : 0;
+		result = 31 * result + (packageName != null ? packageName.hashCode() : 0);
+		result = 31 * result + (versionRelationType != null ? versionRelationType.hashCode() : 0);
+		result = 31 * result + (packageVersion != null ? packageVersion.hashCode() : 0);
+		return result;
+	}
+
 	public PackageRelationType getRelationType()
 	{
 		return relationType;

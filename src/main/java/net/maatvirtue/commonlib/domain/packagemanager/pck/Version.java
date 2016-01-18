@@ -169,6 +169,35 @@ public class Version
 		return text;
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		Version version = (Version) o;
+
+		if(majorVersion != version.majorVersion) return false;
+		if(minorVersion != version.minorVersion) return false;
+		if(patchVersion != version.patchVersion) return false;
+		if(buildVersion != version.buildVersion) return false;
+		if(packageVersion != version.packageVersion) return false;
+		return displayName != null ? displayName.equals(version.displayName) : version.displayName == null;
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = majorVersion;
+		result = 31 * result + minorVersion;
+		result = 31 * result + patchVersion;
+		result = 31 * result + buildVersion;
+		result = 31 * result + packageVersion;
+		result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+		return result;
+	}
+
 	public int getMajorVersion()
 	{
 		return majorVersion;
