@@ -17,6 +17,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PackageRegistryService
 {
@@ -68,6 +70,20 @@ public class PackageRegistryService
 			registry.addPackageToRegistry(packageMetadata);
 
 			saveRegistry(registry);
+		}
+		catch(IOException | FfpdpException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	public Set<PackageMetadata> getInstalledPackages() throws PackageManagerException
+	{
+		try
+		{
+			PackageRegistry registry = loadRegistry();
+
+			return registry.getRegisteredPackageMetadata();
 		}
 		catch(IOException | FfpdpException exception)
 		{

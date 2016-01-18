@@ -2,6 +2,7 @@ package net.maatvirtue.commonlib.domain.packagemanager;
 
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,5 +49,10 @@ public class PackageRegistry
 			throw new IllegalArgumentException("Package "+packageName+" not in registry");
 
 		registry.remove(packageName);
+	}
+
+	public Set<PackageMetadata> getRegisteredPackageMetadata()
+	{
+		return new HashSet<>(registry.values());
 	}
 }

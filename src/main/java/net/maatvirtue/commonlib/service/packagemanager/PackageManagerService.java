@@ -2,6 +2,7 @@ package net.maatvirtue.commonlib.service.packagemanager;
 
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.InstallationDataType;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
 import net.maatvirtue.commonlib.exception.NotImplementedPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
@@ -22,6 +23,8 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class PackageManagerService
 {
@@ -121,6 +124,32 @@ public class PackageManagerService
 		try
 		{
 			return getRootSigningPublicKey().equals(publicKey);
+		}
+		catch(IOException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	public Set<PackageMetadata> getInstalledPackages() throws PackageManagerException
+	{
+		Path lockFile = PackageManagerConstants.LOCK_FILE;
+
+		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
+		{
+			FileLock lock = fos.getChannel().tryLock();
+
+			if(lock == null)
+				throw new PackageManagerRuntimeException("Could not acquire lock");
+
+			try
+			{
+				return packageRegistryService.getInstalledPackages();
+			}
+			finally
+			{
+				lock.release();
+			}
 		}
 		catch(IOException exception)
 		{
