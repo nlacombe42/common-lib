@@ -1,6 +1,6 @@
 package net.maatvirtue.commonlib.exception;
 
-public class NotImplementedPackageManagerException extends PackageManagerException
+public class NotImplementedPackageManagerException extends PackageManagerRuntimeException
 {
 	public NotImplementedPackageManagerException()
 	{

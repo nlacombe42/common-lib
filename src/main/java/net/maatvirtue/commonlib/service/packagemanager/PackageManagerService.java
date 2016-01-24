@@ -1,13 +1,13 @@
 package net.maatvirtue.commonlib.service.packagemanager;
 
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
-import net.maatvirtue.commonlib.domain.packagemanager.pck.InstallationDataType;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
-import net.maatvirtue.commonlib.exception.NotImplementedPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
+import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageInstaller;
+import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageInstallerFactory;
 import org.apache.commons.io.FileUtils;
 
 import java.io.FileOutputStream;
@@ -16,14 +16,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermission;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class PackageManagerService
@@ -164,36 +159,10 @@ public class PackageManagerService
 		if(packageRegistryService.isPackageInstalled(packageName))
 			uninstallWithoutLock(packageName);
 
-		if(pck.getMetadata().getInstallationDataType() == InstallationDataType.JAR)
-			installJarPackage(pck);
-		else
-			throw new NotImplementedPackageManagerException("Unknown installation type: " + pck.getMetadata().getInstallationDataType());
-	}
+		PackageInstaller packageInstaller =
+				PackageInstallerFactory.getPackageInstaller(pck.getMetadata().getInstallationDataType());
 
-	private void installJarPackage(Package pck) throws IOException, PackageManagerException, InterruptedException
-	{
-		String packageName = pck.getMetadata().getName();
-
-		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
-		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
-
-		packageRegistryService.addPackage(pck.getMetadata());
-
-		Files.createDirectories(applicationFolder);
-
-		try(FileOutputStream fos = new FileOutputStream(applicationJar.toFile()))
-		{
-			fos.write(pck.getInstallationData());
-			fos.flush();
-		}
-
-		Files.setPosixFilePermissions(applicationJar, new HashSet<>(Collections.singletonList(PosixFilePermission.OWNER_EXECUTE)));
-
-		Process process = Runtime.getRuntime().exec("java -jar " + applicationJar.toAbsolutePath() + " install",
-				null, applicationFolder.toFile());
-
-		if(process.waitFor() != 0)
-			throw new PackageManagerException("Error calling JAR with install command");
+		packageInstaller.installPackage(pck);
 	}
 
 	private void uninstallWithoutLock(String packageName) throws IOException, PackageManagerException, InterruptedException
@@ -222,7 +191,7 @@ public class PackageManagerService
 
 	private PublicKey getRootSigningPublicKey() throws IOException
 	{
-		InputStream is = getClass().getResourceAsStream("/"+PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
+		InputStream is = getClass().getResourceAsStream("/" + PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
 
 		return cryptoService.readPublicKeyFromPem(new InputStreamReader(is));
 	}
