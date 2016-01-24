@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class JarPackageInstaller implements PackageInstaller
 {
@@ -41,9 +41,26 @@ public class JarPackageInstaller implements PackageInstaller
 
 	private void executeInstallTrigger(Path applicationJar) throws IOException, InterruptedException, PackageManagerException
 	{
-		Files.setPosixFilePermissions(applicationJar, new HashSet<>(Collections.singletonList(PosixFilePermission.OWNER_EXECUTE)));
+		Files.setPosixFilePermissions(applicationJar, getApplicationJarFilePermissions());
 
 		executeCommand(applicationJar);
+	}
+
+	private Set<PosixFilePermission> getApplicationJarFilePermissions()
+	{
+		Set<PosixFilePermission> permissions = new HashSet<>();
+
+		permissions.add(PosixFilePermission.OWNER_READ);
+		permissions.add(PosixFilePermission.OWNER_WRITE);
+		permissions.add(PosixFilePermission.OWNER_EXECUTE);
+
+		permissions.add(PosixFilePermission.GROUP_READ);
+		permissions.add(PosixFilePermission.GROUP_EXECUTE);
+
+		permissions.add(PosixFilePermission.OTHERS_READ);
+		permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+
+		return permissions;
 	}
 
 	private void executeCommand(Path applicationJar) throws InterruptedException, IOException, PackageManagerException

@@ -169,6 +169,7 @@ public class PackageRegistryService
 		try(FileOutputStream fos = new FileOutputStream(registryFile.toFile()))
 		{
 			packageRegistrySerializer.writeRegistry(fos, registry);
+			fos.flush();
 		}
 	}
 }

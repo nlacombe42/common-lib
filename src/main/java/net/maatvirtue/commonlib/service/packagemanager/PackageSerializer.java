@@ -123,6 +123,9 @@ public class PackageSerializer
 
 	private String joinEnvironmentCompatibilities(Set<EnvironmentCompatibility> environmentCompatibilities)
 	{
+		if(environmentCompatibilities==null)
+			return null;
+
 		String environmentCompatibilitiesText = "";
 
 		for(EnvironmentCompatibility environmentCompatibility : environmentCompatibilities)
@@ -138,6 +141,9 @@ public class PackageSerializer
 
 	private String joinPackgeRelations(Set<PackageRelation> packageRelations)
 	{
+		if(packageRelations==null)
+			return null;
+
 		String packageRelationsText = "";
 
 		for(PackageRelation packageRelation : packageRelations)

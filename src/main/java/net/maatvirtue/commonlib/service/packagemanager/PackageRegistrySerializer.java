@@ -60,11 +60,12 @@ public class PackageRegistrySerializer
 		{
 			readAndCheckFfpdpTag(fis);
 			fis.read();
+			fis.read();
 
 			int numberOfPackages = IoUtil.readInteger(fis);
 			Map<String, PackageMetadata> registryMap = new HashMap<>(numberOfPackages);
 
-			for(int i=0; i<=numberOfPackages; i++)
+			for(int i=0; i<numberOfPackages; i++)
 			{
 				PackageMetadata packageMetadata = packageDeserializer.parsePackageMetadata(fis.readFrame());
 
