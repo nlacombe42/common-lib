@@ -3,9 +3,9 @@ package net.maatvirtue.commonlib.domain.packagemanager.pck;
 public enum VersionRelationType
 {
 	STRICTLY_EARLIER("<"),
-	EARLIER("<="),
+	EARLIER_OR_EQUAL("<="),
 	EQUAL("="),
-	LATER(">="),
+	LATER_OR_EQUAL(">="),
 	STRICTLY_LATER(">")
 	;
 

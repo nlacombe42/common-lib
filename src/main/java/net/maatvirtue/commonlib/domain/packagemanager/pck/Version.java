@@ -2,7 +2,7 @@ package net.maatvirtue.commonlib.domain.packagemanager.pck;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class Version
+public class Version implements Comparable<Version>
 {
 	private static final String MAIN_VERSION_SEPERATOR = ".";
 	private static final String PACKAGE_VERSION_SEPERATOR = "-";
@@ -59,6 +59,31 @@ public class Version
 		this.displayName = displayName;
 
 		parseAndSetVersionText(versionText);
+	}
+
+	public boolean isEarlierOrEqualTo(Version version)
+	{
+		return compareTo(version) >= 0;
+	}
+
+	public boolean isEqualTo(Version version)
+	{
+		return compareTo(version) == 0;
+	}
+
+	public boolean isLaterOrEqualTo(Version version)
+	{
+		return compareTo(version) <= 0;
+	}
+
+	public boolean isStrictlyEarlierThan(Version version)
+	{
+		return compareTo(version) > 0;
+	}
+
+	public boolean isStrictlyLaterThan(Version version)
+	{
+		return compareTo(version) > 0;
 	}
 
 	private void parseAndSetVersionText(String versionText)
@@ -256,5 +281,35 @@ public class Version
 	public void setDisplayName(String displayName)
 	{
 		this.displayName = displayName;
+	}
+
+	@Override
+	public int compareTo(Version version)
+	{
+		if(version==null)
+			throw new IllegalArgumentException("version must not be null");
+
+		if(majorVersion > version.getMajorVersion())
+			return 1;
+		else if(majorVersion < version.getMajorVersion())
+			return -1;
+		else if(minorVersion > version.getMinorVersion())
+			return 1;
+		else if(minorVersion < version.getMinorVersion())
+			return -1;
+		else if(patchVersion > version.getPatchVersion())
+			return 1;
+		else if(patchVersion < version.getPatchVersion())
+			return -1;
+		else if(buildVersion > version.getBuildVersion())
+			return 1;
+		else if(buildVersion < version.getBuildVersion())
+			return -1;
+		else if(packageVersion > version.getPackageVersion())
+			return 1;
+		else if(packageVersion < version.getPackageVersion())
+			return -1;
+		else
+			return 0;
 	}
 }

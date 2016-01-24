@@ -80,7 +80,7 @@ public class PackageRelation
 	private VersionRelationType findRelationType(String relationText)
 	{
 		List<VersionRelationType> orderedVersionRelationTypes =
-				Arrays.asList(VersionRelationType.EARLIER, VersionRelationType.LATER, VersionRelationType.EQUAL,
+				Arrays.asList(VersionRelationType.EARLIER_OR_EQUAL, VersionRelationType.LATER_OR_EQUAL, VersionRelationType.EQUAL,
 						VersionRelationType.STRICTLY_EARLIER, VersionRelationType.STRICTLY_LATER);
 
 		for(VersionRelationType versionRelationType: orderedVersionRelationTypes)
