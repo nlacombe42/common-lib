@@ -12,7 +12,7 @@ public class PackageMetadata
 	private Set<EnvironmentCompatibility> environmentCompatibilities;
 	private boolean isVirtualPackage;
 	private Set<PackageRelation> packageRelations;
-	private InstallationDataType installationDataType;
+	private InstallationType installationType;
 
 	public PackageMetadata(String name, Version version)
 	{
@@ -21,7 +21,7 @@ public class PackageMetadata
 		this.environmentCompatibilities = new HashSet<>();
 		this.isVirtualPackage = false;
 		this.packageRelations = new HashSet<>();
-		this.installationDataType = InstallationDataType.JAR;
+		this.installationType = InstallationType.JAR;
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class PackageMetadata
 			return false;
 		if(packageRelations != null ? !packageRelations.equals(that.packageRelations) : that.packageRelations != null)
 			return false;
-		return installationDataType == that.installationDataType;
+		return installationType == that.installationType;
 
 	}
 
@@ -56,7 +56,7 @@ public class PackageMetadata
 		result = 31 * result + (environmentCompatibilities != null ? environmentCompatibilities.hashCode() : 0);
 		result = 31 * result + (isVirtualPackage ? 1 : 0);
 		result = 31 * result + (packageRelations != null ? packageRelations.hashCode() : 0);
-		result = 31 * result + (installationDataType != null ? installationDataType.hashCode() : 0);
+		result = 31 * result + (installationType != null ? installationType.hashCode() : 0);
 		return result;
 	}
 
@@ -140,13 +140,13 @@ public class PackageMetadata
 		packageRelations.add(packageRelation);
 	}
 
-	public InstallationDataType getInstallationDataType()
+	public InstallationType getInstallationType()
 	{
-		return installationDataType;
+		return installationType;
 	}
 
-	public void setInstallationDataType(InstallationDataType installationDataType)
+	public void setInstallationType(InstallationType installationType)
 	{
-		this.installationDataType = installationDataType;
+		this.installationType = installationType;
 	}
 }

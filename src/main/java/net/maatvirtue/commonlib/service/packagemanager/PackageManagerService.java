@@ -2,12 +2,13 @@ package net.maatvirtue.commonlib.service.packagemanager;
 
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
+import net.maatvirtue.commonlib.exception.NotInstalledPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
-import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageInstaller;
-import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageInstallerFactory;
+import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageHandler;
+import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageHandlerFactory;
 import org.apache.commons.io.FileUtils;
 
 import java.io.FileOutputStream;
@@ -159,26 +160,23 @@ public class PackageManagerService
 		if(packageRegistryService.isPackageInstalled(packageName))
 			uninstallWithoutLock(packageName);
 
-		PackageInstaller packageInstaller =
-				PackageInstallerFactory.getPackageInstaller(pck.getMetadata().getInstallationDataType());
+		PackageHandler packageHandler =
+				PackageHandlerFactory.getPackageHandler(pck.getMetadata().getInstallationType());
 
-		packageInstaller.installPackage(pck);
+		packageHandler.installPackage(pck);
 	}
 
 	private void uninstallWithoutLock(String packageName) throws IOException, PackageManagerException, InterruptedException
 	{
-		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
-		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
+		if(!packageRegistryService.isPackageInstalled(packageName))
+			throw new NotInstalledPackageManagerException(packageName);
 
-		Process process = Runtime.getRuntime().exec("java -jar " + applicationJar.toAbsolutePath() + " uninstall",
-				null, applicationFolder.toFile());
+		PackageMetadata packageMetadata = packageRegistryService.getPackageMetadata(packageName);
 
-		if(process.waitFor() != 0)
-			throw new PackageManagerException("Error calling JAR with uninstall command");
+		PackageHandler packageHandler =
+				PackageHandlerFactory.getPackageHandler(packageMetadata.getInstallationType());
 
-		FileUtils.deleteDirectory(applicationFolder.toFile());
-
-		packageRegistryService.removePackage(packageName);
+		packageHandler.uninstallPackage(packageName);
 	}
 
 	private void validatePackageSignature(PublicKey packageSignature) throws IOException, PackageManagerException

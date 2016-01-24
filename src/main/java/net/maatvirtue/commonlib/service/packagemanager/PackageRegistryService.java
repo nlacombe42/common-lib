@@ -4,6 +4,7 @@ import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants
 import net.maatvirtue.commonlib.domain.packagemanager.PackageRegistry;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
 import net.maatvirtue.commonlib.exception.FfpdpException;
+import net.maatvirtue.commonlib.exception.NotInstalledPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import org.slf4j.Logger;
@@ -84,6 +85,23 @@ public class PackageRegistryService
 			PackageRegistry registry = loadRegistry();
 
 			return registry.getRegisteredPackageMetadata();
+		}
+		catch(IOException | FfpdpException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	public PackageMetadata getPackageMetadata(String packageName) throws PackageManagerException
+	{
+		try
+		{
+			PackageRegistry registry = loadRegistry();
+
+			if(!registry.isPackageInRegistry(packageName))
+				throw new NotInstalledPackageManagerException(packageName);
+
+			return registry.getPackageMetadata(packageName);
 		}
 		catch(IOException | FfpdpException exception)
 		{

@@ -3,7 +3,7 @@ package net.maatvirtue.commonlib.service.packagemanager;
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Contact;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.EnvironmentCompatibility;
-import net.maatvirtue.commonlib.domain.packagemanager.pck.InstallationDataType;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.InstallationType;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageRelation;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Version;
@@ -115,7 +115,7 @@ public class PackageDeserializer
 			metadata.setPackageAuthor(parseContact(readUtf8String(fis)));
 			metadata.setPackageRelations(splitPackgeRelations(readUtf8String(fis)));
 			metadata.setEnvironmentCompatibilities(splitEnvironmentCompatibilities(readUtf8String(fis)));
-			metadata.setInstallationDataType(InstallationDataType.getByCode(readUtf8String(fis)));
+			metadata.setInstallationType(InstallationType.getByCode(readUtf8String(fis)));
 
 			return metadata;
 		}

@@ -20,11 +20,6 @@ public class PackageRegistry
 		return registry.keySet();
 	}
 
-	public PackageMetadata getPackageMetadata(String packageName)
-	{
-		return registry.get(packageName);
-	}
-
 	public boolean isPackageInRegistry(String packageName)
 	{
 		return registry.containsKey(packageName);
@@ -54,5 +49,13 @@ public class PackageRegistry
 	public Set<PackageMetadata> getRegisteredPackageMetadata()
 	{
 		return new HashSet<>(registry.values());
+	}
+
+	public PackageMetadata getPackageMetadata(String packageName)
+	{
+		if(!isPackageInRegistry(packageName))
+			throw new IllegalArgumentException("Package "+packageName+" not in registry");
+
+		return registry.get(packageName);
 	}
 }

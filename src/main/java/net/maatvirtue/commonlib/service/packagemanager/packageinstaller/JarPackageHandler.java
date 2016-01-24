@@ -4,6 +4,7 @@ import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.service.packagemanager.PackageRegistryService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JarPackageInstaller implements PackageInstaller
+public class JarPackageHandler implements PackageHandler
 {
 	private PackageRegistryService packageRegistryService = PackageRegistryService.getInstance();
 
@@ -29,21 +30,36 @@ public class JarPackageInstaller implements PackageInstaller
 		{
 			packageRegistryService.addPackage(pck.getMetadata());
 
-			createApplicationFolderAndCopyFiles(applicationJar, pck.getInstallationData());
+			createApplicationFolderAndCopyJar(applicationJar, pck.getInstallationData());
 
-			executeInstallTrigger(applicationJar);
+			Files.setPosixFilePermissions(applicationJar, getApplicationJarFilePermissions());
+
+			executeJarWithCommand(applicationJar, "install");
 		}
-		catch(IOException|InterruptedException exception)
+		catch(IOException | InterruptedException exception)
 		{
 			throw new PackageManagerException(exception);
 		}
 	}
 
-	private void executeInstallTrigger(Path applicationJar) throws IOException, InterruptedException, PackageManagerException
+	@Override
+	public void uninstallPackage(String packageName) throws PackageManagerException
 	{
-		Files.setPosixFilePermissions(applicationJar, getApplicationJarFilePermissions());
+		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
+		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
 
-		executeCommand(applicationJar);
+		try
+		{
+			executeJarWithCommand(applicationJar, "uninstall");
+
+			FileUtils.deleteDirectory(applicationFolder.toFile());
+
+			packageRegistryService.removePackage(packageName);
+		}
+		catch(IOException | InterruptedException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
 	}
 
 	private Set<PosixFilePermission> getApplicationJarFilePermissions()
@@ -63,17 +79,17 @@ public class JarPackageInstaller implements PackageInstaller
 		return permissions;
 	}
 
-	private void executeCommand(Path applicationJar) throws InterruptedException, IOException, PackageManagerException
+	private void executeJarWithCommand(Path jar, String command) throws InterruptedException, IOException, PackageManagerException
 	{
-		Path applicationFolder = applicationJar.getParent();
-		String command = "java -jar " + applicationJar.toAbsolutePath() + " install";
+		Path applicationFolder = jar.getParent();
+		String fullCommand = "java -jar " + jar.toAbsolutePath() + " " + command;
 
-		Process process = Runtime.getRuntime().exec(command, null, applicationFolder.toFile());
+		Process process = Runtime.getRuntime().exec(fullCommand, null, applicationFolder.toFile());
 
-		validateCommandExecution(process, command);
+		validateJarWithCommandExecution(process, command, fullCommand);
 	}
 
-	private void validateCommandExecution(Process process, String command) throws InterruptedException, PackageManagerException, IOException
+	private void validateJarWithCommandExecution(Process process, String command, String fullCommand) throws InterruptedException, PackageManagerException, IOException
 	{
 		if(process.waitFor() != 0)
 		{
@@ -81,15 +97,15 @@ public class JarPackageInstaller implements PackageInstaller
 			String processStderr = IOUtils.toString(process.getErrorStream());
 
 			String errorMessage = "";
-			errorMessage += "Error calling JAR with install command: " + command + "\r\n";
-			errorMessage += "STDERR: \r\n"+processStderr+"\r\n";
-			errorMessage += "STDOUT: \r\n"+processStdout+"\r\n";
+			errorMessage += "Error calling JAR with " + command + "command: " + fullCommand + "\r\n";
+			errorMessage += "STDERR: \r\n" + processStderr + "\r\n";
+			errorMessage += "STDOUT: \r\n" + processStdout + "\r\n";
 
 			throw new PackageManagerException(errorMessage);
 		}
 	}
 
-	private void createApplicationFolderAndCopyFiles(Path applicationJar, byte[] installationData) throws IOException
+	private void createApplicationFolderAndCopyJar(Path applicationJar, byte[] installationData) throws IOException
 	{
 		Path applicationFolder = applicationJar.getParent();
 

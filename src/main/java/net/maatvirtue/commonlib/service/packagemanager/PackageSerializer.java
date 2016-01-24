@@ -94,7 +94,7 @@ public class PackageSerializer
 			writeUtf8String(fos, getContactText(packageMetadata.getPackageAuthor()));
 			writeUtf8String(fos, joinPackgeRelations(packageMetadata.getPackageRelations()));
 			writeUtf8String(fos, joinEnvironmentCompatibilities(packageMetadata.getEnvironmentCompatibilities()));
-			writeUtf8String(fos, packageMetadata.getInstallationDataType().getCode());
+			writeUtf8String(fos, packageMetadata.getInstallationType().getCode());
 
 			return baos.toByteArray();
 		}
