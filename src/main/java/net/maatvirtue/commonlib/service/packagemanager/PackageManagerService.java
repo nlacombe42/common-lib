@@ -9,7 +9,6 @@ import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
 import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageHandler;
 import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageHandlerFactory;
-import org.apache.commons.io.FileUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -21,6 +20,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 public class PackageManagerService
 {
@@ -65,54 +65,22 @@ public class PackageManagerService
 			throw new PackageManagerException(exception);
 		}
 
-		Path lockFile = PackageManagerConstants.LOCK_FILE;
-
-		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
+		executeDuringLock(() ->
 		{
-			FileLock lock = fos.getChannel().tryLock();
-
-			if(lock == null)
-				throw new PackageManagerRuntimeException("Could not acquire lock");
-
-			try
-			{
-				installWithoutLock(pck);
-			}
-			finally
-			{
-				lock.release();
-			}
-		}
-		catch(IOException | InterruptedException exception)
-		{
-			throw new PackageManagerException(exception);
-		}
+			installWithoutLock(pck);
+			return null;
+		});
 	}
 
 	public void uninstall(String packageName) throws PackageManagerException
 	{
 		Path lockFile = PackageManagerConstants.LOCK_FILE;
 
-		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
+		executeDuringLock(() ->
 		{
-			FileLock lock = fos.getChannel().tryLock();
-
-			if(lock == null)
-				throw new PackageManagerRuntimeException("Could not acquire lock");
-
-			try
-			{
-				uninstallWithoutLock(packageName);
-			}
-			finally
-			{
-				lock.release();
-			}
-		}
-		catch(IOException | InterruptedException exception)
-		{
-			throw new PackageManagerException(exception);
-		}
+			uninstallWithoutLock(packageName);
+			return null;
+		});
 	}
 
 	public boolean isPackageManagerRootSigningKey(PublicKey publicKey) throws PackageManagerException
@@ -129,28 +97,7 @@ public class PackageManagerService
 
 	public Set<PackageMetadata> getInstalledPackages() throws PackageManagerException
 	{
-		Path lockFile = PackageManagerConstants.LOCK_FILE;
-
-		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
-		{
-			FileLock lock = fos.getChannel().tryLock();
-
-			if(lock == null)
-				throw new PackageManagerRuntimeException("Could not acquire lock");
-
-			try
-			{
-				return packageRegistryService.getInstalledPackages();
-			}
-			finally
-			{
-				lock.release();
-			}
-		}
-		catch(IOException exception)
-		{
-			throw new PackageManagerException(exception);
-		}
+		return executeDuringLock(() -> packageRegistryService.getInstalledPackages());
 	}
 
 	private void installWithoutLock(Package pck) throws PackageManagerException, IOException, InterruptedException
@@ -192,5 +139,31 @@ public class PackageManagerService
 		InputStream is = getClass().getResourceAsStream("/" + PackageManagerConstants.PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME);
 
 		return cryptoService.readPublicKeyFromPem(new InputStreamReader(is));
+	}
+
+	private <T> T executeDuringLock(Callable<T> callable) throws PackageManagerException
+	{
+		Path lockFile = PackageManagerConstants.LOCK_FILE;
+
+		try(FileOutputStream fos = new FileOutputStream(lockFile.toFile()))
+		{
+			FileLock lock = fos.getChannel().tryLock();
+
+			if(lock == null)
+				throw new PackageManagerRuntimeException("Could not acquire lock");
+
+			try
+			{
+				return callable.call();
+			}
+			finally
+			{
+				lock.release();
+			}
+		}
+		catch(Exception exception)
+		{
+			throw new PackageManagerException(exception);
+		}
 	}
 }
