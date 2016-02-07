@@ -63,7 +63,7 @@ public class Version implements Comparable<Version>
 
 	public boolean isEarlierOrEqualTo(Version version)
 	{
-		return compareTo(version) >= 0;
+		return compareTo(version) <= 0;
 	}
 
 	public boolean isEqualTo(Version version)
@@ -73,12 +73,12 @@ public class Version implements Comparable<Version>
 
 	public boolean isLaterOrEqualTo(Version version)
 	{
-		return compareTo(version) <= 0;
+		return compareTo(version) >= 0;
 	}
 
 	public boolean isStrictlyEarlierThan(Version version)
 	{
-		return compareTo(version) > 0;
+		return compareTo(version) < 0;
 	}
 
 	public boolean isStrictlyLaterThan(Version version)
