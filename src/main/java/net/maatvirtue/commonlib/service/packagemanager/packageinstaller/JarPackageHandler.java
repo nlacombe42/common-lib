@@ -22,7 +22,6 @@ public class JarPackageHandler implements PackageHandler
 	public void installPackage(Package pck) throws PackageManagerException
 	{
 		String packageName = pck.getMetadata().getName();
-
 		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
 		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
 
@@ -30,11 +29,33 @@ public class JarPackageHandler implements PackageHandler
 		{
 			packageRegistryService.addPackage(pck.getMetadata());
 
-			createApplicationFolderAndCopyJar(applicationJar, pck.getInstallationData());
+			Files.createDirectories(applicationFolder);
+			Files.write(applicationJar, pck.getInstallationData());
 
 			Files.setPosixFilePermissions(applicationJar, getApplicationJarFilePermissions());
 
 			executeJarWithCommand(applicationJar, "install");
+		}
+		catch(IOException | InterruptedException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
+	@Override
+	public void upgradePackage(Package pck) throws PackageManagerException
+	{
+		String packageName = pck.getMetadata().getName();
+		Path applicationFolder = PackageManagerConstants.PACKAGE_MANAGER_FOLDER.resolve(packageName);
+		Path applicationJar = applicationFolder.resolve(packageName + ".jar");
+
+		try
+		{
+			packageRegistryService.replacePackageMetadata(pck.getMetadata());
+
+			Files.write(applicationJar, pck.getInstallationData());
+
+			executeJarWithCommand(applicationJar, "upgrade");
 		}
 		catch(IOException | InterruptedException exception)
 		{
@@ -103,13 +124,5 @@ public class JarPackageHandler implements PackageHandler
 
 			throw new PackageManagerException(errorMessage);
 		}
-	}
-
-	private void createApplicationFolderAndCopyJar(Path applicationJar, byte[] installationData) throws IOException
-	{
-		Path applicationFolder = applicationJar.getParent();
-
-		Files.createDirectories(applicationFolder);
-		Files.write(applicationJar, installationData);
 	}
 }

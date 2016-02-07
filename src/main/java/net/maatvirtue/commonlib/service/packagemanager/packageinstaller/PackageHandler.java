@@ -6,5 +6,6 @@ import net.maatvirtue.commonlib.exception.PackageManagerException;
 public interface PackageHandler
 {
 	void installPackage(Package pck) throws PackageManagerException;
+	void upgradePackage(Package pck) throws PackageManagerException;
 	void uninstallPackage(String packageName) throws PackageManagerException;
 }

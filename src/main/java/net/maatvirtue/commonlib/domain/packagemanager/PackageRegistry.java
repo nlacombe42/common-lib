@@ -38,6 +38,14 @@ public class PackageRegistry
 		registry.put(packageMetadata.getName(), packageMetadata);
 	}
 
+	public void replacePackageMetadata(PackageMetadata packageMetadata)
+	{
+		if(!isPackageInRegistry(packageMetadata.getName()))
+			throw new IllegalArgumentException("Package \"+packageMetadata.getName()+\" not in registry");
+
+		registry.put(packageMetadata.getName(), packageMetadata);
+	}
+
 	public void removePackage(String packageName)
 	{
 		if(!isPackageInRegistry(packageName))

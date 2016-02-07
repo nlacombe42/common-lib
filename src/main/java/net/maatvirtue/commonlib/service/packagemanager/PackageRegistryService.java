@@ -78,6 +78,22 @@ public class PackageRegistryService
 		}
 	}
 
+	public void replacePackageMetadata(PackageMetadata packageMetadata) throws PackageManagerException
+	{
+		try
+		{
+			PackageRegistry registry = loadRegistry();
+
+			registry.replacePackageMetadata(packageMetadata);
+
+			saveRegistry(registry);
+		}
+		catch(IOException | FfpdpException exception)
+		{
+			throw new PackageManagerException(exception);
+		}
+	}
+
 	public Set<PackageMetadata> getInstalledPackages() throws PackageManagerException
 	{
 		try
@@ -99,7 +115,7 @@ public class PackageRegistryService
 			PackageRegistry registry = loadRegistry();
 
 			if(!registry.isPackageInRegistry(packageName))
-				throw new NotInstalledPackageManagerException(packageName);
+				return null;
 
 			return registry.getPackageMetadata(packageName);
 		}

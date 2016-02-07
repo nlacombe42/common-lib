@@ -2,6 +2,7 @@ package net.maatvirtue.commonlib.service.packagemanager;
 
 import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
+import net.maatvirtue.commonlib.domain.packagemanager.pck.Version;
 import net.maatvirtue.commonlib.exception.NotInstalledPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
@@ -54,7 +55,7 @@ public class PackageManagerService
 		return packageDeserializer.readPackage(is);
 	}
 
-	public void install(Package pck) throws PackageManagerException
+	public void installOrUpgrade(Package pck) throws PackageManagerException
 	{
 		try
 		{
@@ -67,7 +68,7 @@ public class PackageManagerService
 
 		executeDuringLock(() ->
 		{
-			installWithoutLock(pck);
+			installOrUpgradeWithoutLock(pck);
 			return null;
 		});
 	}
@@ -100,17 +101,25 @@ public class PackageManagerService
 		return executeDuringLock(() -> packageRegistryService.getInstalledPackages());
 	}
 
-	private void installWithoutLock(Package pck) throws PackageManagerException, IOException, InterruptedException
+	private void installOrUpgradeWithoutLock(Package packageToInstall) throws PackageManagerException, IOException, InterruptedException
 	{
-		String packageName = pck.getMetadata().getName();
+		String nameOfPackageToInstall = packageToInstall.getMetadata().getName();
+		Version versionOfPackageToInstall = packageToInstall.getMetadata().getVersion();
+		PackageHandler packageHandler = PackageHandlerFactory.getPackageHandler(packageToInstall.getMetadata().getInstallationType());
 
-		if(packageRegistryService.isPackageInstalled(packageName))
-			uninstallWithoutLock(packageName);
+		PackageMetadata alreadyInstalledPackage = packageRegistryService.getPackageMetadata(nameOfPackageToInstall);
 
-		PackageHandler packageHandler =
-				PackageHandlerFactory.getPackageHandler(pck.getMetadata().getInstallationType());
+		if(alreadyInstalledPackage != null)
+		{
+			Version versionOfAlreadyInstalledPackage = alreadyInstalledPackage.getVersion();
 
-		packageHandler.installPackage(pck);
+			if(versionOfPackageToInstall.isEarlierOrEqualTo(versionOfAlreadyInstalledPackage))
+				throw new PackageManagerException("Package is not going to be installed since it is an older version or same version than the already installed package.");
+
+			packageHandler.upgradePackage(packageToInstall);
+		}
+		else
+			packageHandler.installPackage(packageToInstall);
 	}
 
 	private void uninstallWithoutLock(String packageName) throws IOException, PackageManagerException, InterruptedException
@@ -119,6 +128,9 @@ public class PackageManagerService
 			throw new NotInstalledPackageManagerException(packageName);
 
 		PackageMetadata packageMetadata = packageRegistryService.getPackageMetadata(packageName);
+
+		if(packageMetadata == null)
+			throw new NotInstalledPackageManagerException(packageName);
 
 		PackageHandler packageHandler =
 				PackageHandlerFactory.getPackageHandler(packageMetadata.getInstallationType());
