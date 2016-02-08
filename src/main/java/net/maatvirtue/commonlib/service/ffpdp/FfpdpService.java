@@ -95,9 +95,16 @@ public class FfpdpService
 
 	public boolean isOfType(Path file, int uid, int type) throws IOException, FfpdpException
 	{
-		FfpdpTagV2 ffpdpTag = (FfpdpTagV2) readFfpdpTag(new FileInputStream(file.toFile()));
+		try
+		{
+			FfpdpTagV2 ffpdpTag = (FfpdpTagV2) readFfpdpTag(new FileInputStream(file.toFile()));
 
-		return ffpdpTag.getUid() == uid && ffpdpTag.getType() == type;
+			return ffpdpTag.getUid() == uid && ffpdpTag.getType() == type;
+		}
+		catch(InvalidTagFfpdpException exception)
+		{
+			return false;
+		}
 	}
 
 	public boolean isOfType(Path file, FfpdpTagV2 ffpdpTagV2) throws IOException, FfpdpException
