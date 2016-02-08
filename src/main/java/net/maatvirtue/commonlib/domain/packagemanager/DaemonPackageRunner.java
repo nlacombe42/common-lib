@@ -5,13 +5,13 @@ import net.maatvirtue.commonlib.domain.daemon.Daemon;
 import net.maatvirtue.commonlib.exception.UnkownCommandRuntimeException;
 import net.maatvirtue.commonlib.service.packagemanager.ApplicationSetupRunner;
 import net.maatvirtue.commonlib.util.GenericUtil;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 public class DaemonPackageRunner
 {
@@ -79,12 +79,15 @@ public class DaemonPackageRunner
 		@Override
 		protected void doInstall()
 		{
-			InputStream scriptInputStream = getClass().getResourceAsStream("/" + PackageManagerConstants.DAEMON_SCRIPT_FILENAME);
-			Path scriptFile = Paths.get(applicationName + ".sh");
-
 			try
 			{
-				Files.copy(scriptInputStream, scriptFile, StandardCopyOption.REPLACE_EXISTING);
+				InputStream scriptInputStream = getClass().getResourceAsStream("/" + PackageManagerConstants.DAEMON_SCRIPT_FILENAME);
+				String script = IOUtils.toString(scriptInputStream);
+				script = script.replaceAll("APP_NAME", applicationName);
+
+				Path scriptFile = Paths.get(applicationName + ".sh");
+
+				Files.write(scriptFile, script.getBytes());
 				Files.setPosixFilePermissions(scriptFile, GenericUtil.getDefaultScriptPermissions());
 			}
 			catch(IOException e)
