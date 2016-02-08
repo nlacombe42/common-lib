@@ -7,11 +7,13 @@ import net.maatvirtue.commonlib.util.io.IoUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class FfpdpService
@@ -89,6 +91,18 @@ public class FfpdpService
 			return readFfpdpTagV2(is);
 		else
 			throw new NotImplementedFfpdpException("FFPDP Version "+ffpdpVersion+" not implemented");
+	}
+
+	public boolean isOfType(Path file, int uid, int type) throws IOException, FfpdpException
+	{
+		FfpdpTagV2 ffpdpTag = (FfpdpTagV2) readFfpdpTag(new FileInputStream(file.toFile()));
+
+		return ffpdpTag.getUid() == uid && ffpdpTag.getType() == type;
+	}
+
+	public boolean isOfType(Path file, FfpdpTagV2 ffpdpTagV2) throws IOException, FfpdpException
+	{
+		return isOfType(file, ffpdpTagV2.getUid(), ffpdpTagV2.getType());
 	}
 
 	private byte[] getFfpdpTagV2Bytes(FfpdpTagV2 ffpdpTagV2) throws IOException

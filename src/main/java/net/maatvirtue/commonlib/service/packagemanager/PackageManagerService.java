@@ -8,6 +8,7 @@ import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import net.maatvirtue.commonlib.service.crypto.CryptoService;
+import net.maatvirtue.commonlib.service.ffpdp.FfpdpTagV2;
 import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageHandler;
 import net.maatvirtue.commonlib.service.packagemanager.packageinstaller.PackageHandlerFactory;
 
@@ -43,6 +44,11 @@ public class PackageManagerService
 			instance = new PackageManagerService();
 
 		return instance;
+	}
+
+	public FfpdpTagV2 getCurrentPackageFfpdpTag()
+	{
+		return PackageManagerConstants.CURRENT_PACKAGE_FFPDP_TAG;
 	}
 
 	public void writePackage(OutputStream os, Package pkg, KeyPair signingKeypair) throws IOException, PackageManagerException

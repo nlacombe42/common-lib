@@ -4,7 +4,6 @@ import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants
 import net.maatvirtue.commonlib.domain.packagemanager.PackageRegistry;
 import net.maatvirtue.commonlib.domain.packagemanager.pck.PackageMetadata;
 import net.maatvirtue.commonlib.exception.FfpdpException;
-import net.maatvirtue.commonlib.exception.NotInstalledPackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.exception.PackageManagerRuntimeException;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 public class PackageRegistryService
