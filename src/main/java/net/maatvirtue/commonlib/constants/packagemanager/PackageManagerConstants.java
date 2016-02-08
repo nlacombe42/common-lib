@@ -21,4 +21,8 @@ public class PackageManagerConstants
 	public static final Path PACKAGE_MANAGER_FOLDER = GenericUtil.getUserHomeFolder().resolve(".pckmgr");
 	public static final Path LOCK_FILE = PACKAGE_MANAGER_FOLDER.resolve("lock");
 	public static final Path REGISTRY_FILE = PACKAGE_MANAGER_FOLDER.resolve("registry");
+
+	public static final String APPLICATION_INSTALL_COMMAND = "install";
+	public static final String APPLICATION_UPGRADE_COMMAND = "upgrade";
+	public static final String APPLICATION_UNINSTALL_COMMAND = "uninstall";
 }

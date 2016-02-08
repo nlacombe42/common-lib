@@ -34,7 +34,7 @@ public class JarPackageHandler implements PackageHandler
 
 			Files.setPosixFilePermissions(applicationJar, getApplicationJarFilePermissions());
 
-			executeJarWithCommand(applicationJar, "install");
+			executeJarWithCommand(applicationJar, PackageManagerConstants.APPLICATION_INSTALL_COMMAND);
 		}
 		catch(IOException | InterruptedException exception)
 		{
@@ -55,7 +55,7 @@ public class JarPackageHandler implements PackageHandler
 
 			Files.write(applicationJar, pck.getInstallationData());
 
-			executeJarWithCommand(applicationJar, "upgrade");
+			executeJarWithCommand(applicationJar, PackageManagerConstants.APPLICATION_UPGRADE_COMMAND);
 		}
 		catch(IOException | InterruptedException exception)
 		{
@@ -71,7 +71,7 @@ public class JarPackageHandler implements PackageHandler
 
 		try
 		{
-			executeJarWithCommand(applicationJar, "uninstall");
+			executeJarWithCommand(applicationJar, PackageManagerConstants.APPLICATION_UNINSTALL_COMMAND);
 
 			FileUtils.deleteDirectory(applicationFolder.toFile());
 
