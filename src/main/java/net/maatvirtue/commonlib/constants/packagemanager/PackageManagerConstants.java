@@ -17,6 +17,7 @@ public class PackageManagerConstants
 	public static final FfpdpTagV2 CURRENT_REGISTRY_FFPDP_TAG = new FfpdpTagV2(2, 2, 1, 0);
 
 	public static final String PACKAGE_MANAGER_ROOT_SIGNING_PUBLIC_KEY_FILENAME = "pckmgr-root-signing-public.pem";
+	public static final String DAEMON_SCRIPT_FILENAME = "daemon-script.sh";
 
 	public static final Path PACKAGE_MANAGER_FOLDER = GenericUtil.getUserHomeFolder().resolve(".pckmgr");
 	public static final Path LOCK_FILE = PACKAGE_MANAGER_FOLDER.resolve("lock");

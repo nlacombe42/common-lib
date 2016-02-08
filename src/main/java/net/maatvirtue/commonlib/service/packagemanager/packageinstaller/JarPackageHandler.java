@@ -4,6 +4,7 @@ import net.maatvirtue.commonlib.constants.packagemanager.PackageManagerConstants
 import net.maatvirtue.commonlib.domain.packagemanager.pck.Package;
 import net.maatvirtue.commonlib.exception.PackageManagerException;
 import net.maatvirtue.commonlib.service.packagemanager.PackageRegistryService;
+import net.maatvirtue.commonlib.util.GenericUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -32,7 +33,7 @@ public class JarPackageHandler implements PackageHandler
 			Files.createDirectories(applicationFolder);
 			Files.write(applicationJar, pck.getInstallationData());
 
-			Files.setPosixFilePermissions(applicationJar, getApplicationJarFilePermissions());
+			Files.setPosixFilePermissions(applicationJar, GenericUtil.getDefaultScriptPermissions());
 
 			executeJarWithCommand(applicationJar, PackageManagerConstants.APPLICATION_INSTALL_COMMAND);
 		}
@@ -81,23 +82,6 @@ public class JarPackageHandler implements PackageHandler
 		{
 			throw new PackageManagerException(exception);
 		}
-	}
-
-	private Set<PosixFilePermission> getApplicationJarFilePermissions()
-	{
-		Set<PosixFilePermission> permissions = new HashSet<>();
-
-		permissions.add(PosixFilePermission.OWNER_READ);
-		permissions.add(PosixFilePermission.OWNER_WRITE);
-		permissions.add(PosixFilePermission.OWNER_EXECUTE);
-
-		permissions.add(PosixFilePermission.GROUP_READ);
-		permissions.add(PosixFilePermission.GROUP_EXECUTE);
-
-		permissions.add(PosixFilePermission.OTHERS_READ);
-		permissions.add(PosixFilePermission.OTHERS_EXECUTE);
-
-		return permissions;
 	}
 
 	private void executeJarWithCommand(Path jar, String command) throws InterruptedException, IOException, PackageManagerException

@@ -2,7 +2,10 @@ package net.maatvirtue.commonlib.util;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class GenericUtil
 {
@@ -37,6 +40,21 @@ public class GenericUtil
 	{
 		interruptThreadIfRunning(thread);
 		joinIgnoreInterrupts(thread);
+	}
+
+	public static Set<PosixFilePermission> getDefaultScriptPermissions()
+	{
+		Set<PosixFilePermission> permissions = new HashSet<>();
+
+		permissions.add(PosixFilePermission.OWNER_READ);
+		permissions.add(PosixFilePermission.OWNER_WRITE);
+		permissions.add(PosixFilePermission.OWNER_EXECUTE);
+		permissions.add(PosixFilePermission.GROUP_READ);
+		permissions.add(PosixFilePermission.GROUP_EXECUTE);
+		permissions.add(PosixFilePermission.OTHERS_READ);
+		permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+
+		return permissions;
 	}
 
 	public static String convertToHex(byte[] data)
