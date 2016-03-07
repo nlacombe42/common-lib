@@ -14,11 +14,14 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -65,6 +68,25 @@ public class CryptoService
 		secureRandom.nextBytes(randomData);
 
 		return randomData;
+	}
+
+	public static byte[] sha256(String text)
+	{
+		try
+		{
+			MessageDigest md=MessageDigest.getInstance("SHA-256");
+
+			md.update(text.getBytes("UTF-8"), 0, text.length());
+
+			byte[] sha1hash=md.digest();
+
+			return sha1hash;
+		}
+		catch(NoSuchAlgorithmException|UnsupportedEncodingException e)
+		{
+			//Not supposed to happen
+			throw new RuntimeException(e);
+		}
 	}
 
 	public byte[] generateRandomAesKey()
