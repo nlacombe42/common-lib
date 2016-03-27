@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -97,6 +98,9 @@ public class FfpdpService
 	{
 		try
 		{
+			if(Files.size(file)<FFPDP_MAGIC.length)
+				return false;
+
 			FfpdpTagV2 ffpdpTag = (FfpdpTagV2) readFfpdpTag(new FileInputStream(file.toFile()));
 
 			return ffpdpTag.getUid() == uid && ffpdpTag.getType() == type;
