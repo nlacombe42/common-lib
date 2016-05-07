@@ -1,5 +1,7 @@
 package net.maatvirtue.commonlib.util.io;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,10 +11,10 @@ public class IoUtil
 {
 	public static int ubyte(byte b)
 	{
-		if(b>=0)
+		if(b >= 0)
 			return b;
 		else
-			return b+256;
+			return b + 256;
 	}
 
 	public static int b4toint(byte[] buffer)
@@ -38,23 +40,13 @@ public class IoUtil
 	/**
 	 * Read <code>size</code> bytes from input stream <code>is</code>.
 	 * Keeps reading until all bytes are read or there is an error reading or reaches end of stream.
-	 * If not all the bytes are read, this methods throws and exception (even if end of stream).
+	 * If not all the bytes are read this methods throws an exception (even if end of stream is reached).
 	 */
 	public static byte[] read(InputStream is, int size) throws IOException
 	{
 		byte[] buffer = new byte[size];
-		int totalBytesRead = 0;
-		int bytesReadAtOnce;
 
-		while(totalBytesRead<size)
-		{
-			bytesReadAtOnce = is.read(buffer, totalBytesRead, size-totalBytesRead);
-
-			if(bytesReadAtOnce==-1)
-				throw new IOException("Could not read enough bytes: end of stream.");
-
-			totalBytesRead += bytesReadAtOnce;
-		}
+		IOUtils.readFully(is, buffer);
 
 		return buffer;
 	}
