@@ -10,8 +10,6 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-	compile 'commons-io:commons-io:2.4'
-	compile 'org.apache.commons:commons-lang3:3.4'
 	compile 'org.slf4j:slf4j-api:1.7.13'
 }
 
@@ -46,6 +44,6 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.10'
+	gradleVersion = '3.3'
 }
 
