@@ -4,13 +4,12 @@ apply plugin: 'maven'
 defaultTasks 'tasks'
 
 group = 'net.nlacombe'
-version = '4.0.0'
+version = '5.0.0'
 
 sourceCompatibility = 9
 targetCompatibility = 9
 
 dependencies {
-	compile 'org.slf4j:slf4j-api:1.7.13'
 }
 
 repositories {

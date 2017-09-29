@@ -1,4 +1,4 @@
-package net.maatvirtue.commonlib.domain.daemon;
+package net.nlacombe.commonlib.domain.daemon;
 
 public interface Daemon
 {

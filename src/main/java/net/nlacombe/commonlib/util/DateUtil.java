@@ -1,4 +1,4 @@
-package net.maatvirtue.commonlib.util;
+package net.nlacombe.commonlib.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

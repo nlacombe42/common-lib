@@ -1,4 +1,4 @@
-package net.maatvirtue.commonlib.util;
+package net.nlacombe.commonlib.util;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
