@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.YearMonth;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -23,15 +22,15 @@ public class DateUtil
 		return dateFormat.format(date);
 	}
 
-	public static Instant getStartOfMonthUtc(YearMonth yearMonth)
+	public static Instant getStartOfMonth(YearMonth yearMonth, TimeZone timeZone)
 	{
-		return yearMonth.atDay(1).atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
+		return yearMonth.atDay(1).atStartOfDay().atZone(timeZone.toZoneId()).toInstant();
 	}
 
-	public static Instant getLastSecondBeforeNextMonthUtc(YearMonth yearMonth)
+	public static Instant getLastSecondBeforeNextMonth(YearMonth yearMonth, TimeZone timeZone)
 	{
 		YearMonth nextMonth = yearMonth.plusMonths(1);
-		Instant startOfNextMonthUtc = getStartOfMonthUtc(nextMonth);
+		Instant startOfNextMonthUtc = getStartOfMonth(nextMonth, timeZone);
 
 		return startOfNextMonthUtc.minusSeconds(1);
 	}
