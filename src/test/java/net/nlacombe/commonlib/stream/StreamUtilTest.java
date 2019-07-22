@@ -16,7 +16,7 @@ public class StreamUtilTest {
     @Test
     public void returns_empty_stream_when_no_element() {
         var emptyIterator = getEmptyPageIteratorMock();
-        var stream = StreamUtil.createStreamFromPageIterator(emptyIterator);
+        var stream = StreamUtil.createStream(emptyIterator);
 
         assertThat(stream.collect(Collectors.toList())).isEmpty();
     }
@@ -25,7 +25,7 @@ public class StreamUtilTest {
     public void returns_stream_with_one_element_when_one_element() {
         var firstPage = List.of(1);
         var pageIterator = getPageIterator(firstPage);
-        var stream = StreamUtil.createStreamFromPageIterator(pageIterator);
+        var stream = StreamUtil.createStream(pageIterator);
 
         var results = stream.collect(Collectors.toList());
 
@@ -36,7 +36,7 @@ public class StreamUtilTest {
     public void returns_stream_with_all_elements_of_first_page_when_one_page() {
         var firstPage = List.of(1, 2);
         var pageIterator = getPageIterator(firstPage);
-        var stream = StreamUtil.createStreamFromPageIterator(pageIterator);
+        var stream = StreamUtil.createStream(pageIterator);
 
         var results = stream.collect(Collectors.toList());
 
@@ -48,11 +48,33 @@ public class StreamUtilTest {
         var firstPage = List.of(1, 2);
         var secondPage = List.of(3, 4);
         var pageIterator = getPageIterator(firstPage, secondPage);
-        var stream = StreamUtil.createStreamFromPageIterator(pageIterator);
+        var stream = StreamUtil.createStream(pageIterator);
 
         var results = stream.collect(Collectors.toList());
 
         assertThat(results).containsExactlyElementsOf(join(firstPage, secondPage));
+    }
+
+    @Test
+    public void returns_stream_with_all_elements_of_first_pages_when_page_source_with_one_page() {
+        var firstPage = List.of(1, 2);
+        var stream = StreamUtil.createStream(new PageSource<Integer>() {
+            private boolean firstPageReturned = false;
+
+            @Override
+            public List<Integer> getNextPage() {
+                if (firstPageReturned)
+                    return List.of();
+
+                firstPageReturned = true;
+
+                return firstPage;
+            }
+        });
+
+        var results = stream.collect(Collectors.toList());
+
+        assertThat(results).isEqualTo(firstPage);
     }
 
     private <ElementType> List<ElementType> join(List<ElementType> firstList, List<ElementType> secondList) {

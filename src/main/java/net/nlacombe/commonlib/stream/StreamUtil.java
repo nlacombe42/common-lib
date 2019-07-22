@@ -1,6 +1,11 @@
 package net.nlacombe.commonlib.stream;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -31,9 +36,12 @@ public class StreamUtil {
             batchProcessor.accept(new ArrayList<>(newBatch));
     }
 
-    public static <ElementType> Stream<ElementType> createStreamFromPageIterator(PageIterator<ElementType> pageIterator) {
+    public static <ElementType> Stream<ElementType> createStream(PageIterator<ElementType> pageIterator) {
         Iterator<ElementType> it = new PageElementIterator<>(pageIterator);
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(it, Spliterator.DISTINCT), false);
     }
 
+    public static <ElementType> Stream<ElementType> createStream(PageSource<ElementType> pageSource) {
+        return createStream(new PageSourcePageIterator<>(pageSource));
+    }
 }
