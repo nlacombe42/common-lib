@@ -4,7 +4,7 @@ apply plugin: 'maven'
 defaultTasks 'tasks'
 
 group = 'net.nlacombe'
-version = '8.1.0'
+version = '9.0.0'
 
 sourceCompatibility = 11
 targetCompatibility = 11
