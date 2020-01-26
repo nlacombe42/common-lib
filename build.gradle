@@ -6,12 +6,17 @@ plugins {
 defaultTasks 'tasks'
 
 group = 'net.nlacombe'
-version = '10.0.0'
+version = '10.1.0'
 
 sourceCompatibility = 11
 targetCompatibility = 11
 
 dependencies {
+	implementation 'org.apache.commons:commons-csv:1.6'
+	implementation 'org.apache.commons:commons-collections4:4.4'
+	implementation 'org.apache.commons:commons-lang3:3.9'
+	implementation 'commons-beanutils:commons-beanutils:1.9.4'
+
 	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.assertj:assertj-core:3.11.1'
 	testImplementation 'org.mockito:mockito-core:2.24.0'

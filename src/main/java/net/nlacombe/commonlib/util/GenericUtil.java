@@ -3,6 +3,7 @@ package net.nlacombe.commonlib.util;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -47,5 +48,23 @@ public class GenericUtil {
         }
 
         return new String(str);
+    }
+
+    public static AutoCloseable mergeCloseable(AutoCloseable leftAutoCloseable, AutoCloseable rightAutoCloseable) {
+        if (leftAutoCloseable == null)
+            return rightAutoCloseable;
+
+        if (rightAutoCloseable == null)
+            return leftAutoCloseable;
+
+        return () -> {
+            try (AutoCloseable first = leftAutoCloseable) {
+                rightAutoCloseable.close();
+            }
+        };
+    }
+
+    public static AutoCloseable mergeCloseable(AutoCloseable... c) {
+        return Arrays.stream(c).reduce(null, GenericUtil::mergeCloseable);
     }
 }
