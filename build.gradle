@@ -1,18 +1,20 @@
-apply plugin: 'java'
-apply plugin: 'maven'
+plugins {
+	id 'java-library'
+	id 'maven-publish'
+}
 
 defaultTasks 'tasks'
 
 group = 'net.nlacombe'
-version = '9.0.0'
+version = '10.0.0'
 
 sourceCompatibility = 11
 targetCompatibility = 11
 
 dependencies {
-	testCompile 'junit:junit:4.12'
-	testCompile 'org.assertj:assertj-core:3.11.1'
-	testCompile 'org.mockito:mockito-core:2.24.0'
+	testImplementation 'junit:junit:4.12'
+	testImplementation 'org.assertj:assertj-core:3.11.1'
+	testImplementation 'org.mockito:mockito-core:2.24.0'
 }
 
 repositories {
@@ -20,31 +22,19 @@ repositories {
 	mavenLocal()
 }
 
-uploadArchives {
-	repositories {
-		mavenLocal()
+java {
+	withJavadocJar()
+	withSourcesJar()
+}
+
+publishing {
+	publications {
+		commonLib(MavenPublication) {
+			from components.java
+		}
 	}
 }
 
-javadoc {
-	options.addStringOption('Xdoclint:none', '-quiet')
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = 'javadoc'
-	from javadoc.destinationDir
-}
-
-artifacts {
-	archives sourcesJar
-	archives javadocJar
-}
-
 wrapper {
-	gradleVersion = '5.1.1'
+	gradleVersion = '6.1.1'
 }
