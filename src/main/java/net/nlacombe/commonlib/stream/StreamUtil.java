@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -44,4 +45,11 @@ public class StreamUtil {
     public static <ElementType> Stream<ElementType> createStream(PageSource<ElementType> pageSource) {
         return createStream(new PageSourcePageIterator<>(pageSource));
     }
+
+    public static <T> Stream<List<T>> batch(Stream<T> stream, int batchSize) {
+        return batchSize <= 0
+                ? Stream.of(stream.collect(Collectors.toList()))
+                : StreamSupport.stream(new BatchSpliterator<>(stream.spliterator(), batchSize), stream.isParallel());
+    }
+
 }
