@@ -37,7 +37,14 @@ public class BeanCsvWriter<BeanType> implements AutoCloseable {
 
     public BeanCsvWriter(Class<? extends BeanType> classOfBean, Path csvFilePath, char delimiter, List<String> orderOfProperties) throws IOException {
         this.csvFileWriter = new FileWriter(csvFilePath.toFile());
-        this.csvPrinter = getCsvPrinter(delimiter);
+        this.csvPrinter = getCsvPrinter(csvFileWriter, delimiter);
+        this.propertiesInColumnOrder = getPropertiesInColumnOrder(classOfBean, orderOfProperties);
+
+        writeHeaders();
+    }
+
+    public BeanCsvWriter(Class<? extends BeanType> classOfBean, Appendable appendable, char delimiter, List<String> orderOfProperties) throws IOException {
+        this.csvPrinter = getCsvPrinter(appendable, delimiter);
         this.propertiesInColumnOrder = getPropertiesInColumnOrder(classOfBean, orderOfProperties);
 
         writeHeaders();
@@ -78,13 +85,13 @@ public class BeanCsvWriter<BeanType> implements AutoCloseable {
         csvPrinter.printRecord(propertyValuesInOrder);
     }
 
-    private CSVPrinter getCsvPrinter(char delimiter) throws IOException {
+    private CSVPrinter getCsvPrinter(Appendable appendable, char delimiter) throws IOException {
         CSVFormat csvFormat = CSVFormat.RFC4180;
 
         if (delimiter != DEFAULT_DELIMITER)
             csvFormat = csvFormat.withDelimiter(delimiter);
 
-        return csvFormat.print(csvFileWriter);
+        return csvFormat.print(appendable);
     }
 
     private List<String> getPropertiesInColumnOrder(Class<? extends BeanType> classOfBean, List<String> orderOfProperties) {

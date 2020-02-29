@@ -6,7 +6,7 @@ plugins {
 defaultTasks 'tasks'
 
 group = 'net.nlacombe'
-version = '10.2.0'
+version = '10.3.0'
 
 sourceCompatibility = 11
 targetCompatibility = 11
