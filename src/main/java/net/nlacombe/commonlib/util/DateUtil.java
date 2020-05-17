@@ -1,5 +1,6 @@
 package net.nlacombe.commonlib.util;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.util.TimeZone;
@@ -17,5 +18,12 @@ public class DateUtil
 		Instant startOfNextMonthUtc = getStartOfMonth(nextMonth, timeZone);
 
 		return startOfNextMonthUtc.minusSeconds(1);
+	}
+
+	public static String toHumanFormatDuration(Duration duration) {
+		return duration.toString()
+				.substring(2)
+				.replaceAll("(\\d[HMS])(?!$)", "$1 ")
+				.toLowerCase();
 	}
 }
