@@ -77,8 +77,8 @@ public class BeanCsvWriter<BeanType> implements AutoCloseable {
         writeForEveryPropertyName(propertyName -> propertyName);
     }
 
-    private void writeForEveryPropertyName(Function<String, Object> mapFunction) throws IOException {
-        List<Object> propertyValuesInOrder = propertiesInColumnOrder.stream()
+    private void writeForEveryPropertyName(Function<String, String> mapFunction) throws IOException {
+        var propertyValuesInOrder = propertiesInColumnOrder.stream()
                 .map(mapFunction)
                 .collect(Collectors.toList());
 

@@ -1,45 +1,51 @@
 plugins {
-	id 'java-library'
-	id 'maven-publish'
+    id 'java-library'
+    id 'maven-publish'
 }
 
-defaultTasks 'tasks'
-
 group = 'net.nlacombe'
-version = '10.4.0'
+version = '11.0.0'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 dependencies {
-	implementation 'org.apache.commons:commons-csv:1.6'
-	implementation 'org.apache.commons:commons-collections4:4.4'
-	implementation 'org.apache.commons:commons-lang3:3.9'
-	implementation 'commons-beanutils:commons-beanutils:1.9.4'
+    implementation 'org.apache.commons:commons-csv:1.8'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation 'org.apache.commons:commons-lang3:3.11'
+    implementation 'commons-beanutils:commons-beanutils:1.9.4'
 
-	testImplementation 'junit:junit:4.12'
-	testImplementation 'org.assertj:assertj-core:3.11.1'
-	testImplementation 'org.mockito:mockito-core:2.24.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.11.1'
+    testImplementation 'org.mockito:mockito-core:2.24.0'
 }
 
 repositories {
-	mavenCentral()
-	mavenLocal()
+    mavenCentral()
+    mavenLocal()
+}
+
+jar {
+    manifest {
+        attributes(
+            'Automatic-Module-Name': 'net.nlacombe.commonlib'
+        )
+    }
 }
 
 java {
-	withJavadocJar()
-	withSourcesJar()
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
-	publications {
-		commonLib(MavenPublication) {
-			from components.java
-		}
-	}
+    publications {
+        commonLib(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 wrapper {
-	gradleVersion = '6.5'
+    gradleVersion = '6.7'
 }
